@@ -20,17 +20,56 @@
 </head>
 <body id="body">
 
-  <div class="c4"> </div>
+  <div class="c4">
+    <h3>use WASD to drive the bike</h3>
+
+  </div>
 
 <script>
 
-    var tronView = new TronView();
+    var arenaWidth = 600;
+    var arenaHeight = 600;
+
+
+
+    var tronView = new TronView(arenaWidth, arenaHeight);
+
+    //all the methods we'll need to draw will be accessable via the arena object
     var arenaView = tronView.getArena();
 
-    arenaView.drawBike(50,50,0x0000CC);
+
+
+
+    var bike_x = 75;
+    var bike_y = 75;
+    var bike_color = 0x0000CC;
+    var bike_speed = 10;
+
+    arenaView.drawBike(bike_x, bike_y, bike_color);
+
+    //redraw bike to the top(w), left(a), bottom(s), right(d)
+    $(document).keypress(function(e){
+        var key = e.which;
+
+        console.log("key: " + key);
+
+        if (key == 119)      bike_y -= bike_speed;  //w
+        else if (key == 97)  bike_x -= bike_speed;  //a
+        else if (key == 115) bike_y += bike_speed;  //s
+        else if (key == 100) bike_x += bike_speed;  //d
+
+        //keep bike in the arena
+        if (bike_x >= arenaWidth) bike_x = arenaWidth - bike_speed;
+        if (bike_x < 0) bike_x = 0;
+        if (bike_y >= arenaHeight) bike_y = arenaHeight - bike_speed;
+        if (bike_y < 0) bike_y = 0;
+
+        arenaView.drawBike(bike_x, bike_y, bike_color);
+    });
 
 </script>
 
 </body>
 
 </html>
+
