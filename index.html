@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <title>Tron</title>
+
+
+    <script src="jquery.1.11.1.js"></script> <!-- 1 - JQUERY -->
+    <script src="pixi.dev.js"></script>  <!-- 2 - Pixi -->
+    <script src="hammer.js"></script>  <!-- 3 - Hammer -->
+
+    <script src="loader.js"></script>
+
+    <script src="view.js"></script>
+
+
+
+
+</head>
+<body id="body">
+
+  <div class="c4"> </div>
+
+<script>
+
+    var tronView = new TronView();
+    var arenaView = tronView.getArena();
+
+    arenaView.drawBike(50,50,0x0000CC);
+
+</script>
+
+</body>
+
+</html>
