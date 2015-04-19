@@ -43,13 +43,19 @@
     //all the methods we'll need to draw will be accessable via the arena object
     var arenaView = tronView.getArena();
 
+    // game timer
+    TIME_PER_FRAME = 33;
+    var game_loop = setInterval(update, TIME_PER_FRAME);
 
+    // key handlers
+    document.addEventListener("keydown", keyDownHandler, false);
 
     //bike1
     var bike1_x = 60;
     var bike1_y = 60;
     var bike1_color = 0x0000CC;
-    var bike1_speed = 10;
+    var bike1_speed = 7;
+    var bike1_direction = "RIGHT";
 
     bike1View = arenaView.addBike(bike1_x, bike1_y, bike1_color);
 
@@ -59,7 +65,8 @@
     var bike2_x = 60;
     var bike2_y = 80;
     var bike2_color = 0xFF0000;
-    var bike2_speed = 10;
+    var bike2_speed = 7;
+    var bike2_direction = "RIGHT";
 
     bike2View = arenaView.addBike(bike2_x, bike2_y, bike2_color);
 
@@ -93,21 +100,18 @@
     }
 
 
-
-    //move bike1 up(w), left(a), down(s), right(d)
-    //move bike2 up(i), left(j), down(k), right(l)
-    //keydown and keypress events fire repeatedly while a key is pressed, but keyup events only fire on a keyup
-    $(document).keyup(function(e){
-        var key = e.which;
-
-        console.log("key: " + key);
-
-
-        //for bike1
-        if (key == 87)      bike1_y -= bike1_speed;  //w
-        else if (key == 65) bike1_x -= bike1_speed;  //a
-        else if (key == 83) bike1_y += bike1_speed;  //s
-        else if (key == 68) bike1_x += bike1_speed;  //d
+    //moves the bikes based on last direction
+    function update()
+    {
+        // calculate bike movement
+        if (bike1_direction == "UP")
+            bike1_y -= bike1_speed;  //w
+        else if (bike1_direction == "LEFT")
+            bike1_x -= bike1_speed;  //a
+        else if (bike1_direction == "DOWN")
+            bike1_y += bike1_speed;  //s
+        else if (bike1_direction == "RIGHT")
+            bike1_x += bike1_speed;  //d
 
         //keep bike in the arena
         if (bike1_x >= arenaWidth) bike1_x = arenaWidth - bike1_speed;
@@ -123,13 +127,18 @@
         bike1View.y = bike1_y;
 
 
-        //for bike2
-        if (key == 73)      bike2_y -= bike2_speed;  //i
-        else if (key == 74) bike2_x -= bike2_speed;  //j
-        else if (key == 75) bike2_y += bike2_speed;  //k
-        else if (key == 76) bike2_x += bike2_speed;  //l
 
-        //keep bike in the arena
+        // calculate bike movment
+        if (bike2_direction == "UP")
+            bike2_y -= bike2_speed;  
+        else if (bike2_direction == "LEFT")
+            bike2_x -= bike2_speed;  
+        else if (bike2_direction == "DOWN")
+            bike2_y += bike2_speed;  
+        else if (bike2_direction == "RIGHT")
+            bike2_x += bike2_speed;  
+
+         //keep bike in the arena
         if (bike2_x >= arenaWidth) bike2_x = arenaWidth - bike2_speed;
         if (bike2_x < 0) bike2_x = 0;
         if (bike2_y >= arenaHeight) bike2_y = arenaHeight - bike2_speed;
@@ -149,7 +158,49 @@
             collision1View = arenaView.addCollision(bike1View.x, bike1View.y);
             collision1View.radius++;
         }
-    });
+    }
+
+    function keyDownHandler(event)
+    {
+        var keyPressed = String.fromCharCode(event.keyCode);
+
+        //for bike1
+        if (keyPressed == "W" && bike1_direction != "DOWN")
+            bike1_direction = "UP";
+        else if (keyPressed == "A" && bike1_direction != "RIGHT")
+            bike1_direction = "LEFT";
+        else if (keyPressed == "S" && bike1_direction != "UP")          
+            bike1_direction = "DOWN";
+        else if (keyPressed == "D" && bike1_direction != "LEFT")
+            bike1_direction = "RIGHT";
+
+        //for bike2 ijkl
+        if (keyPressed == "I" && bike2_direction != "DOWN")
+            bike2_direction = "UP";
+        else if (keyPressed == "J" && bike2_direction != "RIGHT")
+            bike2_direction = "LEFT";
+        else if (keyPressed == "K" && bike2_direction != "UP")
+            bike2_direction = "DOWN";
+        else if (keyPressed == "L" && bike2_direction != "LEFT")
+            bike2_direction = "RIGHT";
+    }
+
+    //move bike1 up(w), left(a), down(s), right(d)
+    //move bike2 up(i), left(j), down(k), right(l)
+    //keydown and keypress events fire repeatedly while a key is pressed, but keyup events only fire on a keyup
+    //$(document).keyup(function(e){
+    //    var key = e.which;
+
+        // console.log("key: " + key);
+
+        
+
+        // console.log("Direction: " + bike1_direction);
+
+        
+
+       
+    // });
 
 </script>
 
