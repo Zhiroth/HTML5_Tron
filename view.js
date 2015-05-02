@@ -5,10 +5,12 @@ var view_renderer;
 var view_boundingbox;
 var view_arena;
 
+//var view_puh1;
+
 function TronView(arenaWidth, arenaHeight)
 {
   
-    view_stage = new PIXI.Stage(0x57A52E);
+    view_stage = new PIXI.Stage(0xFFFFFF);
     view_stage.interactive = true;
     view_renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, null);
     document.body.appendChild(view_renderer.view);     // add the renderer view element to the DOM
@@ -20,7 +22,7 @@ function TronView(arenaWidth, arenaHeight)
     view_boundingbox.interactive = true;
     view_boundingbox.clear();
     view_boundingbox.lineStyle(2,0xffffff);
-    view_boundingbox.beginFill(0x0000CC, 0);
+    view_boundingbox.beginFill(0x004499, 1); //background color
     view_boundingbox.drawRect(0,0,window.innerWidth, window.innerHeight);
     view_boundingbox.endFill();
 
@@ -29,7 +31,6 @@ function TronView(arenaWidth, arenaHeight)
     view_stage.addChild(view_arena);
 
 
-    //requestAnimFrame(animate);
 
 
     this.getArena=function()
@@ -37,7 +38,81 @@ function TronView(arenaWidth, arenaHeight)
         return view_arena;
     }.bind(this);
 
+    
+    var view_puh1 = new PowerUpHolder((window.innerWidth - arenaWidth) / 2, 50, "blue");
+    view_stage.addChild(view_puh1);
+
+    this.getPowerUpHolder1=function()
+    {
+        return view_puh1;
+    }.bind(this);
+    
+
+    var view_puh2 = new PowerUpHolder((window.innerWidth - arenaWidth) / 2 + arenaWidth - 250, 50, "red");
+    view_stage.addChild(view_puh2);
+
+    this.getPowerUpHolder2=function()
+    {
+        return view_puh2;
+    }.bind(this);
+
 }
+
+
+
+PowerUpHolder.prototype = Object.create(PIXI.Graphics.prototype);
+PowerUpHolder.prototype.constructor = PowerUpHolder;
+
+function PowerUpHolder(x, y, color)
+{
+
+    var width = 250;
+    var height = 50;
+
+
+
+    PIXI.Graphics.call(this); // super.Sprite
+
+    var displaySelf=function() 
+    {
+        this.clear();
+       
+        this.beginFill(0x000000, 1); //
+        
+        this.drawRect(0,0,width,height); //x, y, width, height
+        this.endFill();
+
+    }.bind(this);
+
+
+    displaySelf();
+
+    this.x = x;
+    this.y = y;
+
+
+    var textSize = (height * 0.8) + "px Arial";
+    
+    var addTextHolder=function()
+    {
+        text = new PIXI.Text("", {font:textSize, fill:color});
+        this.addChild(text);       
+
+    }.bind(this);
+
+    addTextHolder();
+
+
+    
+    this.changeText=function(message)
+    {
+        this.getChildAt(0).setText(" " + message);
+    }.bind(this);
+    
+
+}
+
+
 
 Arena.prototype = Object.create(PIXI.Graphics.prototype);
 Arena.prototype.constructor = Arena;
@@ -60,8 +135,8 @@ function Arena(width, height)
 
     displaySelf();
 
-    this.x = 50;
-    this.y = 50;
+    this.x = (window.innerWidth - width) / 2;
+    this.y = 150;
 
 
     //create, draw, and return a new bike object
@@ -151,6 +226,7 @@ Collision.prototype = Object.create(PIXI.Graphics.prototype);
 Collision.prototype.constructor = Collision;
 
 
+//x and y are center coordinates (NOT top-left coordinates)
 function Collision(x, y)
 {
     PIXI.Graphics.call(this); // super.Sprite
@@ -165,12 +241,15 @@ function Collision(x, y)
 
     this.redraw=function()
     {
+        
         this.clear();
         this.beginFill(0xFF0000, 1);
         this.drawCircle(0, 0, this.radius); //x, y, radius
         this.endFill(); 
+        
 
     }.bind(this);
+
 
 
     displaySelf();
