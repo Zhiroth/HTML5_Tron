@@ -315,6 +315,18 @@ function Arena(width, height)
     var _orangeBikeImg;
     var _buttons = [];
     var _bikes = [];
+    
+    
+    this.getPlayButton=function()
+    {
+        return _playButton;
+    }.bind(this);
+
+    this.getOptionsButton=function()
+    {
+        return _optionsButton;
+    }.bind(this);
+    
 
     this.clearWalls=function()
     {
@@ -666,6 +678,22 @@ function Arena(width, height)
         return button; 
 
     }.bind(this);
+    
+        var addButton=function(_text)
+    {
+        button = new Button(270, _nextButtonY, 152, 50, _text);
+        this.addChild(button);
+
+        _buttons.push(button);  
+
+        _nextButtonY += 70;
+
+        return button; 
+
+    }.bind(this);
+    
+    var _playButton = addButton("   play");
+    var _optionsButton = addButton("options");
 
     var refreshButtonsPosition=function()
     {
