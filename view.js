@@ -319,6 +319,7 @@ function Arena(width, height)
     var _orangeBikeImg;
     var _buttons = [];
     var _bikes = [];
+    var _powerups = [];
     
     
     this.getPlayButton=function()
@@ -416,6 +417,14 @@ function Arena(width, height)
     var showBikes=function()
     {
         for (var i = 0; i < _bikes.length; i++) _bikes[i].visible = true;
+    }.bind(this);
+    
+    
+    //destroy powerups
+    var clearPowerups=function()
+    {
+      for (var i = 0; i < _powerups.length; i++) _powerups[i].visible = false;
+      _powerups = [];
     }.bind(this);
 
 
@@ -526,6 +535,18 @@ function Arena(width, height)
         _bikes.push(bike);  
 
         return bike;      
+
+    }.bind(this);
+    
+    
+    this.addPowerup=function(x, y, color)
+    {
+        powerup = new Powerup(x, y, color);
+        this.addChild(powerup);
+
+        _powerups.push(powerup);
+
+        return powerup;      
 
     }.bind(this);
 
