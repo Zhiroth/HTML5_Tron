@@ -103,8 +103,6 @@
     puh2View.changeText("break walls");
 
 
-
-
     var toggleArenaSizeButton = optionsView.addButton("arena size: medium"); //args: x, y, width, height, text
     toggleArenaSizeButton.setClickHandler(toggleArenaSize);
 
@@ -115,20 +113,23 @@
         if(arenaSizeText == "small") 
         {
             arenaSizeText = "medium";
-            arenaView.changeSize("medium");
+            arenaWidth = 700;
+            arenaHeight = 500
         }
         else if(arenaSizeText == "medium") 
         {
             arenaSizeText = "large";
-            arenaView.changeSize("large");
+            arenaWidth = 800;
+            arenaHeight = 600;
         }
         else 
         {
             arenaSizeText = "small";
-            arenaView.changeSize("small");
+            arenaWidth = 600;
+            arenaHeight = 400;
         }
 
-        //UPDATE MODEL
+        arenaView.changeSize(arenaWidth, arenaHeight);
 
         //this function automatically repositions the power-up views
         toggleArenaSizeButton.changeText("arena size: " + arenaSizeText);
@@ -222,6 +223,16 @@
     function setup()
     {
         game_loop = setInterval(update, TIME_PER_FRAME);
+        // setup arena size
+        // arenaWidth
+        // arenaHeight
+        // setup mode
+
+
+        // setup bikes
+        // get speeds
+        // get positions
+
     }
 
     //begin animation loop
