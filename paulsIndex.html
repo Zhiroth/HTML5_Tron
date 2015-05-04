@@ -68,10 +68,12 @@
 
 
 
-    var playButton = arenaView.addButton("  play");
+    //var playButton = arenaView.addButton("  play");
+    var playButton = arenaview.getPlayButton();
     playButton.setClickHandler(function() { arenaView.displayCountdown() } );
-    var enterOptionsButton = arenaView.addButton("options");
-    enterOptionsButton.setClickHandler(displayOptionsScreen);
+    //var enterOptionsButton = arenaView.addButton("options");
+    var optionsButton = arenaView.getOptionsButton();
+    optionsButton.setClickHandler(displayOptionsScreen);
 
     function displayOptionsScreen()
     {
