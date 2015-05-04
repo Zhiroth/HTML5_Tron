@@ -164,10 +164,9 @@ var ModelUnitTests = (function(){
 	// General testing area
 	pub.AddStep = function()
 	{
-		var format = sprintf;
-
 		window.onload = function()
 		{
+			var format = sprintf;
 			var model = Model; //can be changed to newModel()
 
 		    var div = document.createElement("div");
