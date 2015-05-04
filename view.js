@@ -715,6 +715,32 @@ function Arena(width, height)
 }
 
 
+Powerup.prototype = Object.create(PIXI.Graphics.prototype);
+Powerup.prototype.constructor = Powerup;
+
+
+function Powerup(x, y, color)
+{
+    PIXI.Graphics.call(this); // super.Sprite
+
+    var displaySelf=function() 
+    {
+        this.clear();
+       
+        this.beginFill(color, 1); //
+        
+        this.drawRect(0,0,10,10); //x, y, width, height
+        this.endFill();
+
+    }.bind(this);
+
+    displaySelf();
+
+    this.x = x;
+    this.y = y;
+}
+
+
 
 Bike.prototype = Object.create(PIXI.Graphics.prototype);
 Bike.prototype.constructor = Bike;
