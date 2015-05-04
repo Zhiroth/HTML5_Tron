@@ -250,7 +250,7 @@
 
         // setup bikes
         bike1 = new Model.BIKE();
-        bike1View = arenaView.addBike(bike1.row * 10, bike1.column * 10, bike1_color);
+        bike1View = arenaView.addBike(bike1.row * 10, bike1.col * 10, bike1_color);
         // get speeds
         // get positions
 
@@ -299,7 +299,7 @@
             Model.PlayerTurnsSouth(bike1); // bike1_y += bike1_speed;  //s
         else if (bike1_direction == "RIGHT")
             Model.PlayerTurnsEast(bike1); // bike1_x += bike1_speed;  //d
-
+        console.log("Bike1: ", bike1);
         //keep bike in the arena
         // if (bike1_x >= arenaWidth) bike1_x = arenaWidth - bike1_speed;
         // if (bike1_x < 0) bike1_x = 0;
@@ -313,7 +313,7 @@
 
         //move the bike
         bike1View.x = bike1.row * 10; //bike1_x;
-        bike1View.y = bike1.column * 10; //bike1_y;
+        bike1View.y = bike1.col * 10; //bike1_y;
 
         // bike 1 power up
         if (bike1_powerup)
