@@ -319,6 +319,7 @@ function Arena(width, height)
     var _orangeBikeImg;
     var _buttons = [];
     var _bikes = [];
+    var _powerups = [];
     
     
     this.getPlayButton=function()
@@ -353,6 +354,8 @@ function Arena(width, height)
         _countdownLabel.visible = false;
         _orangeBikeImg.visible = true;
         
+        clearPowerups();
+        
     }.bind(this);
 
     this.displayVictoryOrange=function()
@@ -365,6 +368,8 @@ function Arena(width, height)
         _tronLabel.visible = false
         _countdownLabel.visible = false;
         _blueBikeImg.visible = true;
+        
+        clearPowerups();
         
     }.bind(this);
 
@@ -391,6 +396,8 @@ function Arena(width, height)
         _blueBikeImg.visible = false;
         _countdownLabel.visible = true;
         _orangeBikeImg.visible = false;
+        
+        clearPowerups();
 
     }.bind(this);
 
@@ -416,6 +423,18 @@ function Arena(width, height)
     var showBikes=function()
     {
         for (var i = 0; i < _bikes.length; i++) _bikes[i].visible = true;
+    }.bind(this);
+    
+    
+    //destroy powerups
+    var clearPowerups=function()
+    {
+      for (var i = 0; i < _powerups.length; i++) _powerups[i].clear();
+      _powerups = [];
+      
+      //clear the power up displays as well
+      view_puh1.changeText("");
+      view_puh2.changeText("");
     }.bind(this);
 
 
@@ -526,6 +545,18 @@ function Arena(width, height)
         _bikes.push(bike);  
 
         return bike;      
+
+    }.bind(this);
+    
+    
+    this.addPowerup=function(x, y, color)
+    {
+        powerup = new Powerup(x, y, color);
+        this.addChild(powerup);
+
+        _powerups.push(powerup);
+
+        return powerup;      
 
     }.bind(this);
 
@@ -712,6 +743,32 @@ function Arena(width, height)
 
 
 
+}
+
+
+Powerup.prototype = Object.create(PIXI.Graphics.prototype);
+Powerup.prototype.constructor = Powerup;
+
+
+function Powerup(x, y, color)
+{
+    PIXI.Graphics.call(this); // super.Sprite
+
+    var displaySelf=function() 
+    {
+        this.clear();
+       
+        this.beginFill(color, 1); //
+        
+        this.drawRect(0,0,10,10); //x, y, width, height
+        this.endFill();
+
+    }.bind(this);
+
+    displaySelf();
+
+    this.x = x;
+    this.y = y;
 }
 
 
