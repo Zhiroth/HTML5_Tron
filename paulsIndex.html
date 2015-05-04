@@ -94,7 +94,7 @@
     puh1View.changeText("speed up");
 
     //set click handler
-    puh1View.setClickHandler(function() { console.log("it bloody works!"); });
+    // puh1View.setClickHandler(function() { console.log("it bloody works!"); });
     
     //set visibility
     //puh1View.visible = false;
@@ -183,6 +183,9 @@
     var bike1_color = 0x0000CC;
     var bike1_speed = 10;
     var bike1_direction = "RIGHT";
+    var bike1_powerup = false;
+    var bike1_powerupType = "speed up";
+    var bike1_powerupFlash = true;
 
 
     bike1View = arenaView.addBike(bike1_x, bike1_y, bike1_color);
@@ -193,12 +196,20 @@
     var bike2_color = 0xFF9933;
     var bike2_speed = 10;
     var bike2_direction = "LEFT";
+    var bike2_powerup = false;
+    var bike2_powerupType = "break walls";
+    var bike2_powerupFlash = true;
 
 
     bike2View = arenaView.addBike(bike2_x, bike2_y, bike2_color);
 
     var count = 3;
     var coutDownTimer = null;
+    var powerUpTimer = null;
+    var flashInterval1 = 500;
+    var flashTimer1 = null;
+    var flashInterval2 = 500;
+    var flashTimer2 = null;
 
     // animates count down label
     function countDown()
@@ -290,7 +301,16 @@
         bike1View.x = bike1_x;
         bike1View.y = bike1_y;
 
-
+        // bike 1 power up
+        if (bike1_powerup)
+        {
+            console.log("IN bike1");
+            bike1_powerup = false;
+            puh1View.changeText("");
+            bike1_powerupFlash = false;
+            flashInterval1 = 1000;
+            flashTimer1 = setTimeout(function() { powerUpFlash(1); }, flashInterval1);
+        }
 
         // calculate bike movment
         if (bike2_direction == "UP")
@@ -315,12 +335,76 @@
         bike2View.x = bike2_x;
         bike2View.y = bike2_y;
 
+        // bike 2 power up
+        if (bike2_powerup)
+        {
+            console.log("IN bike2");
+            bike2_powerup = false;
+            puh2View.changeText("");
+            bike2_powerupFlash = false;
+            flashInterval2 = 1000;
+            flashTimer2 = setTimeout(function() { powerUpFlash(2); }, flashInterval2);
+        }
 
         //draw collision when bikes hit eachother
         if (bike1View.x == bike2View.x && bike1View.y == bike2View.y)
         {
             collision1View = arenaView.addCollision(bike1View.x, bike1View.y);
             collision1View.radius++;
+        }
+    }
+
+    function powerUpFlash(player)
+    {
+        // clearTimeout(flashTimer);
+        if (player == 1)
+        {
+            console.log("IN p1");
+            if (bike1_powerupFlash == false)
+            {
+                puh1View.changeText(bike1_powerupType);
+                bike1_powerupFlash = true;
+            }
+            else
+            {
+                puh1View.changeText("");
+                bike1_powerupFlash = false;
+            }
+
+            if (flashInterval1 > 0)
+            {
+                flashInterval1 = flashInterval1 - 50;
+                flashTimer1 = setTimeout(function () { powerUpFlash(1); }, flashInterval1);
+            }
+            else
+            {
+                puh1View.changeText("");
+            }
+        }
+
+        if (player == 2)
+        {
+            console.log("IN p2");
+            if (bike2_powerupFlash == false)
+            {
+                puh2View.changeText(bike2_powerupType);
+                bike2_powerupFlash = true;
+            }
+            else
+            {
+                puh2View.changeText("");
+                bike2_powerupFlash = false;
+            }
+
+            if (flashInterval2 > 0)
+            {
+                flashInterval2 = flashInterval2 - 50;
+                flashTimer2 = setTimeout(function () { powerUpFlash(2); }, flashInterval2);
+            }
+            else
+            {
+                puh2View.changeText("");
+            }
         }
     }
 
@@ -338,6 +422,8 @@
             bike1_direction = "DOWN";
         else if (keyPressed == "D" && bike1_direction != "LEFT")
             bike1_direction = "RIGHT";
+        else if (keyPressed == "F")
+            bike1_powerup = true;
 
         //for bike2 ijkl
         if (keyPressed == "I" && bike2_direction != "DOWN")
@@ -348,6 +434,8 @@
             bike2_direction = "DOWN";
         else if (keyPressed == "L" && bike2_direction != "LEFT")
             bike2_direction = "RIGHT";
+        else if (keyPressed = "H")
+            bike2_powerup = true;
     }
 
 
