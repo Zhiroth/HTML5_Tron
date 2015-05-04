@@ -446,11 +446,15 @@ function Arena(width, height)
 
 
 
-    this.changeSize=function(size)
+    this.changeSize=function(w, h)
     {
         //var _width;
         //var _height;
+        
+        _width = w;
+        _height = h;
 
+        /*
         if(size == "small")
         {
             _width = 600;
@@ -472,6 +476,7 @@ function Arena(width, height)
             //_width = window.innerWidth * .7;
             //_height = window.innerHeight * .7 - 200;
         }
+        */
         
         this.clear();
         this.beginFill(0x000000, 1); 
