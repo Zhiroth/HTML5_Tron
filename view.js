@@ -190,9 +190,13 @@ function Button(x, y, width, height, text)
     
     var addTextHolder=function()
     {
-        text = new PIXI.Text(" " + text, {font:textSize, fill:textColor});
-        text.y += 3;
-        this.addChild(text);       
+        textObject = new PIXI.Text(" " + text, {font:textSize, fill:textColor});
+        textObject.y += 3;
+       
+        //center the play button
+        if(text == "   play") textObject.x -= 3;
+
+        this.addChild(textObject);          
 
     }.bind(this);
 
