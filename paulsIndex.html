@@ -69,8 +69,8 @@
 
 
     //var playButton = arenaView.addButton("  play");
-    var playButton = arenaview.getPlayButton();
-    playButton.setClickHandler(function() { arenaView.displayCountdown() } );
+    var playButton = arenaView.getPlayButton();
+    playButton.setClickHandler(function() { countDown(); } );
     //var enterOptionsButton = arenaView.addButton("options");
     var optionsButton = arenaView.getOptionsButton();
     optionsButton.setClickHandler(displayOptionsScreen);
@@ -169,30 +169,60 @@
 
 
 
+    // key handlers
+    document.addEventListener("keydown", keyDownHandler, false);
 
-
-
-
+    // game timer
+    TIME_PER_FRAME = 33;
+    var game_loop = null; //setInterval(update, TIME_PER_FRAME);
 
     //bike1
     var bike1_x = 60;
     var bike1_y = 60;
     var bike1_color = 0x0000CC;
     var bike1_speed = 10;
+    var bike1_direction = "RIGHT";
+
 
     bike1View = arenaView.addBike(bike1_x, bike1_y, bike1_color);
 
     //bike2
     var bike2_x = 630;
     var bike2_y = 430;
-    //var bike2_x = 60;
-    //var bike2_y = 80;
     var bike2_color = 0xFF9933;
     var bike2_speed = 10;
+    var bike2_direction = "LEFT";
+
 
     bike2View = arenaView.addBike(bike2_x, bike2_y, bike2_color);
 
+    var count = 3;
+    var coutDownTimer = null;
 
+    // animates count down label
+    function countDown()
+    {
+        if (count == 3)
+        {
+            countDownTimer = setInterval(countDown, 1000);
+            arenaView.displayCountdown(); 
+        }
+        else if (count == 2 || count == 1)
+            arenaView.changeCountdownLabelText(count);
+        else if (count == 0)
+        {
+            clearInterval(countDownTimer);
+            arenaView.hideCountdownLabel();
+            setup()
+        }
+        count--;
+    }
+
+    // sets up game
+    function setup()
+    {
+        game_loop = setInterval(update, TIME_PER_FRAME);
+    }
 
     //begin animation loop
     requestAnimFrame(animate);
@@ -223,22 +253,18 @@
         view_renderer.render(view_stage);     // render the stage
     }
 
-
-
-    //move bike1 up(w), left(a), down(s), right(d)
-    //move bike2 up(i), left(j), down(k), right(l)
-    //keydown and keypress events fire repeatedly while a key is pressed, but keyup events only fire on a keyup
-    $(document).keyup(function(e){
-        var key = e.which;
-
-        console.log("key: " + key);
-
-
-        //for bike1
-        if (key == 87)      bike1_y -= bike1_speed;  //w
-        else if (key == 65) bike1_x -= bike1_speed;  //a
-        else if (key == 83) bike1_y += bike1_speed;  //s
-        else if (key == 68) bike1_x += bike1_speed;  //d
+    //moves the bikes based on last direction
+    function update()
+    {
+        // calculate bike movement
+        if (bike1_direction == "UP")
+            bike1_y -= bike1_speed;  //w
+        else if (bike1_direction == "LEFT")
+            bike1_x -= bike1_speed;  //a
+        else if (bike1_direction == "DOWN")
+            bike1_y += bike1_speed;  //s
+        else if (bike1_direction == "RIGHT")
+            bike1_x += bike1_speed;  //d
 
         //keep bike in the arena
         if (bike1_x >= arenaWidth) bike1_x = arenaWidth - bike1_speed;
@@ -254,13 +280,18 @@
         bike1View.y = bike1_y;
 
 
-        //for bike2
-        if (key == 73)      bike2_y -= bike2_speed;  //i
-        else if (key == 74) bike2_x -= bike2_speed;  //j
-        else if (key == 75) bike2_y += bike2_speed;  //k
-        else if (key == 76) bike2_x += bike2_speed;  //l
 
-        //keep bike in the arena
+        // calculate bike movment
+        if (bike2_direction == "UP")
+            bike2_y -= bike2_speed;  
+        else if (bike2_direction == "LEFT")
+            bike2_x -= bike2_speed;  
+        else if (bike2_direction == "DOWN")
+            bike2_y += bike2_speed;  
+        else if (bike2_direction == "RIGHT")
+            bike2_x += bike2_speed;  
+
+         //keep bike in the arena
         if (bike2_x >= arenaWidth) bike2_x = arenaWidth - bike2_speed;
         if (bike2_x < 0) bike2_x = 0;
         if (bike2_y >= arenaHeight) bike2_y = arenaHeight - bike2_speed;
@@ -280,7 +311,91 @@
             collision1View = arenaView.addCollision(bike1View.x, bike1View.y);
             collision1View.radius++;
         }
-    });
+    }
+
+    // catches key down events
+    function keyDownHandler(event)
+    {
+        var keyPressed = String.fromCharCode(event.keyCode);
+
+        //for bike1
+        if (keyPressed == "W" && bike1_direction != "DOWN")
+            bike1_direction = "UP";
+        else if (keyPressed == "A" && bike1_direction != "RIGHT")
+            bike1_direction = "LEFT";
+        else if (keyPressed == "S" && bike1_direction != "UP")          
+            bike1_direction = "DOWN";
+        else if (keyPressed == "D" && bike1_direction != "LEFT")
+            bike1_direction = "RIGHT";
+
+        //for bike2 ijkl
+        if (keyPressed == "I" && bike2_direction != "DOWN")
+            bike2_direction = "UP";
+        else if (keyPressed == "J" && bike2_direction != "RIGHT")
+            bike2_direction = "LEFT";
+        else if (keyPressed == "K" && bike2_direction != "UP")
+            bike2_direction = "DOWN";
+        else if (keyPressed == "L" && bike2_direction != "LEFT")
+            bike2_direction = "RIGHT";
+    }
+
+
+    //move bike1 up(w), left(a), down(s), right(d)
+    //move bike2 up(i), left(j), down(k), right(l)
+    //keydown and keypress events fire repeatedly while a key is pressed, but keyup events only fire on a keyup
+    // $(document).keyup(function(e){
+    //     var key = e.which;
+
+    //     console.log("key: " + key);
+
+
+    //     //for bike1
+    //     if (key == 87)      bike1_y -= bike1_speed;  //w
+    //     else if (key == 65) bike1_x -= bike1_speed;  //a
+    //     else if (key == 83) bike1_y += bike1_speed;  //s
+    //     else if (key == 68) bike1_x += bike1_speed;  //d
+
+    //     //keep bike in the arena
+    //     if (bike1_x >= arenaWidth) bike1_x = arenaWidth - bike1_speed;
+    //     if (bike1_x < 0) bike1_x = 0;
+    //     if (bike1_y >= arenaHeight) bike1_y = arenaHeight - bike1_speed;
+    //     if (bike1_y < 0) bike1_y = 0;
+
+    //     //draw wall behind bike
+    //     arenaView.drawWall(bike1View.x, bike1View.y, bike1_x, bike1_y, bike1_color);
+
+    //     //move the bike
+    //     bike1View.x = bike1_x;
+    //     bike1View.y = bike1_y;
+
+
+    //     //for bike2
+    //     if (key == 73)      bike2_y -= bike2_speed;  //i
+    //     else if (key == 74) bike2_x -= bike2_speed;  //j
+    //     else if (key == 75) bike2_y += bike2_speed;  //k
+    //     else if (key == 76) bike2_x += bike2_speed;  //l
+
+    //     //keep bike in the arena
+    //     if (bike2_x >= arenaWidth) bike2_x = arenaWidth - bike2_speed;
+    //     if (bike2_x < 0) bike2_x = 0;
+    //     if (bike2_y >= arenaHeight) bike2_y = arenaHeight - bike2_speed;
+    //     if (bike2_y < 0) bike2_y = 0;
+
+    //     //draw wall behind bike
+    //     arenaView.drawWall(bike2View.x, bike2View.y, bike2_x, bike2_y, bike2_color);
+
+    //     //move the bike
+    //     bike2View.x = bike2_x;
+    //     bike2View.y = bike2_y;
+
+
+    //     //draw collision when bikes hit eachother
+    //     if (bike1View.x == bike2View.x && bike1View.y == bike2View.y)
+    //     {
+    //         collision1View = arenaView.addCollision(bike1View.x, bike1View.y);
+    //         collision1View.radius++;
+    //     }
+    // });
 
 </script>
 
