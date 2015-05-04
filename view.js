@@ -354,6 +354,8 @@ function Arena(width, height)
         _countdownLabel.visible = false;
         _orangeBikeImg.visible = true;
         
+        clearPowerups();
+        
     }.bind(this);
 
     this.displayVictoryOrange=function()
@@ -366,6 +368,8 @@ function Arena(width, height)
         _tronLabel.visible = false
         _countdownLabel.visible = false;
         _blueBikeImg.visible = true;
+        
+        clearPowerups();
         
     }.bind(this);
 
@@ -392,6 +396,8 @@ function Arena(width, height)
         _blueBikeImg.visible = false;
         _countdownLabel.visible = true;
         _orangeBikeImg.visible = false;
+        
+        clearPowerups();
 
     }.bind(this);
 
@@ -423,7 +429,7 @@ function Arena(width, height)
     //destroy powerups
     var clearPowerups=function()
     {
-      for (var i = 0; i < _powerups.length; i++) _powerups[i].visible = false;
+      for (var i = 0; i < _powerups.length; i++) _powerups[i].clear();
       _powerups = [];
     }.bind(this);
 
