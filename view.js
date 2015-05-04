@@ -431,6 +431,10 @@ function Arena(width, height)
     {
       for (var i = 0; i < _powerups.length; i++) _powerups[i].clear();
       _powerups = [];
+      
+      //clear the power up displays as well
+      view_puh1.changeText("");
+      view_puh2.changeText("");
     }.bind(this);
 
 
