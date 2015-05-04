@@ -390,7 +390,7 @@ function Arena(width, height)
     this.displayMainScreen=function()
     {
         hideButtons();
-        showBikes();
+        hideBikes();
         clearWalls();
         _tronLabel.visible = false;
         _blueBikeImg.visible = false;
@@ -543,6 +543,9 @@ function Arena(width, height)
         this.addChild(bike);
 
         _bikes.push(bike);  
+        
+        //since the bikes are created before the game begins, the bikes need to be initially hidden
+        bike.visible = false; 
 
         return bike;      
 
