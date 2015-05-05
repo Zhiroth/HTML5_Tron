@@ -259,10 +259,9 @@
     // sets up game
     function setup()
     {
-        console.log("IN setup");
         game_loop = setInterval(update, TIME_PER_FRAME);
-        Model.SetBoardRows(arenaHeight/10);
-        Model.SetBoardColumns(arenaWidth/10);
+        Model.SetBoardRows(arenaHeight/modelScale);
+        Model.SetBoardColumns(arenaWidth/modelScale);
         // setup arena size
         // arenaWidth
         // arenaHeight
@@ -283,7 +282,6 @@
     //run animation loop
     function animate()
     {
-        
         //DO OTHER CONTROLLER STUFF HERE  
 
         
@@ -297,11 +295,7 @@
             //redraw is a method I wrote, it's not built into the api
             collision1View.redraw();
         }
-        
-
-
-
-
+     
         requestAnimFrame(animate);
         view_renderer.render(view_stage);     // render the stage
     }
