@@ -47,12 +47,7 @@
     var arenaView = tronView.getArena();
 
 
-
-
-
-
     //ALL THIS STUFF IS NEW:
-
 
 
     //access the options screen
@@ -242,8 +237,9 @@
     {
         if (count == 3)
         {
-            countDownTimer = setInterval(countDown, 1000);
+            countDownTimer = setInterval(countDown, 900);
             arenaView.displayCountdown(); 
+            arenaView.drawGrid(arenaWidth, arenaHeight, modelScale);
         }
         else if (count == 2 || count == 1)
             arenaView.changeCountdownLabelText(count);
@@ -259,6 +255,9 @@
     // sets up game
     function setup()
     {
+        // Patch: calls a function from the ModelUnitTests.js
+        replaceDraw();
+
         game_loop = setInterval(update, TIME_PER_FRAME);
         Model.SetBoardRows(arenaHeight/modelScale);
         Model.SetBoardColumns(arenaWidth/modelScale);
@@ -309,14 +308,16 @@
 
     function drawBike(bike, bikeView)
     {  
-        var percentProg = bike.progress/Model.GetSpeedThreshhold();
+        var offset = Model.GetBasePlayerSpeed()/Model.GetProgressThreshhold();
+        offset = 0;
+        var percentProg = 1 - bike.progress/Model.GetProgressThreshhold();
         if (bike.fromRowDirection == 1) //up
         {
-            bikeView.y = parseInt(modelScale * (bike.row + percentProg - .5)); //bike1_y;
+            bikeView.y = parseInt(modelScale * (bike.row - percentProg - offset));
         }
         else if(bike.fromRowDirection == -1)
         {
-            bikeView.y = parseInt(modelScale * (bike.row - percentProg + .5)); //bike1_y;
+            bikeView.y = parseInt(modelScale * (bike.row + percentProg + offset));
         }
         else // 0 or null: wasn't moving
         {
@@ -326,11 +327,11 @@
 
         if (bike.fromColDirection == 1) //side
         {
-            bikeView.x = parseInt(modelScale * (bike.col + percentProg - .5)); //bike1_y;
+            bikeView.x = parseInt(modelScale * (bike.col - percentProg - offset));
         }
         else if(bike.fromColDirection == -1)
         {
-            bikeView.x = parseInt(modelScale * (bike.col - percentProg + .5)); //bike1_y;
+            bikeView.x = parseInt(modelScale * (bike.col + percentProg + offset)); 
         }
         else // 0 or null: wasn't moving
         {
@@ -338,7 +339,7 @@
         }
 
         //draw wall behind bike
-        arenaView.drawWall(bikeView.x, bikeView.y, bikeView.prevX, bikeView.prevY, bikeView.color);
+        arenaView.drawWall(bikeView.x, bikeView.y, bikeView.prevX, bikeView.prevY, bikeView.color, null, null);
     }
 
     //moves the bikes based on last direction
@@ -417,10 +418,23 @@
         }
     }
 
+    var DebuggingMode = false;
+
     // catches key down events
     function keyDownHandler(event)
     {
         var keyPressed = String.fromCharCode(event.keyCode);
+
+        if(keyPressed == "U") //Debug Mode!
+        {
+            if(DebuggingMode)
+                document.getElementById("DebugStep").onclick();
+            else
+            {
+                ModelUnitTests.AddDebug();
+                DebuggingMode = true;
+            }
+        }
 
         //for bike1
         if (keyPressed == "W")
@@ -432,7 +446,10 @@
         else if (keyPressed == "D")
             bike1.TurnsEast();
         else if (keyPressed == "F")
+        {
             bike1_powerup = true;
+            bike1.Activate();   
+        }
 
         //for bike2 ijkl
         if (keyPressed == "I")
@@ -444,7 +461,10 @@
         else if (keyPressed == "L")
             bike2.TurnsEast();
         else if (keyPressed == "H")
+        {
             bike2_powerup = true;
+            bike2.Activate();
+        }
     }
 
 

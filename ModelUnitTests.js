@@ -164,9 +164,10 @@ var ModelUnitTests = (function(){
 	// General testing area
 	pub.AddDebug = function()
 	{
-		console.log("HELLO");
 		//window.onload = function()
 		//{
+			clearInterval(game_loop); // Hijack the game loop
+
 			var format = sprintf;
 			var model = Model; //can be changed to newModel()
 
@@ -174,11 +175,13 @@ var ModelUnitTests = (function(){
 		    div.setAttribute("style","padding: 1em;");
 		    var refresh = document.createElement("input");
 		    refresh.type = "button";
-		    refresh.value = "Refresh";
+		    refresh.value = "Step Through";
+		    refresh.id = "DebugStep";
 		    refresh.onclick = function()
 		    {
 		    	// Do an update
 		    	//model.UpdateObjects();
+		    	update();
 
 		    	// Output the stats
 		    	var o = "";
@@ -192,7 +195,7 @@ var ModelUnitTests = (function(){
 		    };
 		    document.body.appendChild(refresh);
 		    document.body.appendChild(div);
-		    refresh.onclick();
+		    //refresh.onclick();
 		//}
 	}
 
@@ -242,3 +245,36 @@ var ModelUnitTests = (function(){
 //ModelUnitTests.runAll();
 //Model.SetBasePlayerSpeed(100);
 //Model.StartGame();
+
+function replaceDraw()
+{
+	// TODO replace "arenaView" with "this" before replacing the function drawWall
+	arenaView.drawWall=function(x1, y1, x2, y2, color, xCorner, yCorner)
+    {
+        //origin of the rectangle (add 3 to both dimensions so wall is centered relative to bike size 10 and wall thickness 4)
+        var xTop = Math.min(x1, x2) + 3;
+        var yTop = Math.min(y1, y2) + 3;
+
+        var xDif = Math.abs(x1 - x2);
+        var yDif = Math.abs(y1 - y2);
+
+        //if bike movement was horizontal, make rectangle height 4 and add 3 to length
+        //if bike movement was vertical,   make rectangle length 4 and add 3 to height
+        if (xDif == 0) 
+        {
+            xDif = 4;
+            yDif += 3;
+        }
+        else
+        {
+            yDif = 4;
+            xDif += 3;
+        }
+
+        arenaView.beginFill(0x00CC00, 1);
+        arenaView.drawRect(xTop, yTop, xDif, yDif); //x, y, width, height
+        arenaView.endFill();     
+
+    }.bind(this);
+}
+

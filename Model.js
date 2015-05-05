@@ -8,7 +8,7 @@ var newModel = function(){
 	var defaultBoardCols = 30;
 	var grid;
 
-	var defaultSpeed = 50;
+	var defaultSpeed = 25;  // Patch? All values of speed should evenly "fit" into the threshold to facilitate smooth movements.
 	var threashhold = 100;	// How much cumulative "speed" a bike needs to accumulate before moving one square.
 	var bikes = [];
 	var liveBikes = []; // Contains the offical list of bikes that are still alive in the game.
@@ -65,12 +65,12 @@ var newModel = function(){
 	}
 
 	/// Sets the default bar for how much “movement” players needs to accumulate before they move one square on the grid.
-	pub.SetSpeedThreshhold = function(thresh)
+	pub.SetProgressThreshhold = function(thresh)
 	{
 		threashhold = thresh;
 	}
 
-	pub.GetSpeedThreshhold = function()
+	pub.GetProgressThreshhold = function()
 	{
 		return threashhold;
 	}
@@ -158,11 +158,11 @@ var newModel = function(){
 		this.col = 0;		// current column position
 		this.rowDirection = 0;	// current row direction
 		this.colDirection = 0;	// current column direction
-		this.speed = 0; 		// current speed of bike
+		this.speed = 0; 		// current speed of bike.
 		this.progress = 0;		// how much progress it's made towards moving to the next square
 		this.fromRowDirection = null;
 		this.fromColDirection = null;
-		
+
 		// Note: The methods dealing with the bike life are written so that the Model.getLiveBikes() is fast.
 		//   While we <i> could </i> also keep track of whether or not this bike is alive I don't want to have
 		//   to "just remember" to update it in both places and risk a mismatch.
@@ -258,6 +258,12 @@ var newModel = function(){
 		{
 			this.startRowDirection = 0;
 			this.startColDirection = -1;
+		}
+
+		/// Tells the model that the given Player wants to activate their ability
+		this.Activate = function()
+		{
+			this.speed = this.speed += 10;
 		}
 
 		this.extra= {};  // Holds any kind of data you want, I won’t use it in the Model.
@@ -383,6 +389,9 @@ var newModel = function(){
 				// keep the progress that exceeded the threshhold
 				b.progress = b.progress % threashhold;
 
+				// Patch: Require that the player's progress reset to zero so the drawn walls get drawn to the corners.
+				//b.progress = 0;
+
 				// Place a wall on the previous position. It may trigger 
 				grid[b.row][b.col] = wall;
 				updateGrid[b.row][b.col] = wall; //TODO this is just a patch to fix the enemy dies when their wall is hit
@@ -426,17 +435,6 @@ var newModel = function(){
 		// returns array of (row, column) pairs indicating collision positions
 	}
 
-	/// Tells the model that the given Player wants to activate their ability
-	pub.PlayerActivatesAbility = function(bike)
-	{
-
-	}
-
-	/// Clears all settings in the model.
-	pub.ClearModel = function()
-	{
-
-	}
 
 	// - - - - - - - Helper Methods - - - - - 
 
