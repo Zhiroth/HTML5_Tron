@@ -1,6 +1,7 @@
 
 //This follows the Revealing Module Pattern
 
+
 var newModel = function(){
 	var pub = {}; // Add all methods/variables that you want to be public
 	var defaultBoardWrap = false;
