@@ -605,6 +605,25 @@ function Arena(width, height)
     }.bind(this);
 
 
+    this.drawGrid=function(arenaWidth, arenaHeight, scale)
+    {
+        var inc = arenaWidth / scale;
+        var jnc = arenaHeight / scale;
+
+        this.beginFill(0xFFFFFF);
+        for (i = 0; i < arenaWidth; inc++)
+        {
+            this.moveTo(i, 0);
+            this.lineTo(i, arenaHeight);
+        }
+
+        for (j = 0; j < arenaHeight ; jnc++)
+        {
+            this.moveTo(0,j);
+            this.lineTo(arenaWidth, j);
+        }
+        this.endFill();
+    }.bind(this);
 
 
     //display "TRON" label at top of this sprite
