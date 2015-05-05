@@ -604,25 +604,25 @@ function Arena(width, height)
 
     }.bind(this);
 
-
+    // draws grid on the arena
     this.drawGrid=function(arenaWidth, arenaHeight, scale)
     {
-        var inc = arenaWidth / scale;
-        var jnc = arenaHeight / scale;
-
-        this.beginFill(0xFFFFFF);
-        for (i = 0; i < arenaWidth; inc++)
+        for (var i = 0; i <= arenaWidth; i += scale)
         {
-            this.moveTo(i, 0);
-            this.lineTo(i, arenaHeight);
+            // this.drawRect(i, 0, i+1, arenaHeight);
+            this.beginFill(0x333333);
+            this.drawRect(i, 0, 1, arenaHeight);
+            this.endFill();
+
         }
 
-        for (j = 0; j < arenaHeight ; jnc++)
+        for (i = 0; i <= arenaHeight; i += scale)
         {
-            this.moveTo(0,j);
-            this.lineTo(arenaWidth, j);
+            this.beginFill(0x333333);
+            this.drawRect(0, i, arenaWidth, 1);
+            this.endFill();
         }
-        this.endFill();
+        
     }.bind(this);
 
 
