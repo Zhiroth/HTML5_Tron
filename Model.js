@@ -11,7 +11,7 @@ var newModel = function(){
 	var defaultSpeed = 50;
 	var threashhold = 100;	// How much cumulative "speed" a bike needs to accumulate before moving one square.
 	var bikes = [];
-	var aliveBikes = []; // Contains the offical list of bikes that are still alive in the game.
+	var liveBikes = []; // Contains the offical list of bikes that are still alive in the game.
 
 	pub.getBikes = function()
 	{
@@ -171,8 +171,8 @@ var newModel = function(){
 		this.isAlive = function()
 		{
 			// Look for the bike in the alive array
-			for(var i=0;i<aliveBikes.length;i++)
-				if(aliveBikes[i]==this)
+			for(var i=0;i<liveBikes.length;i++)
+				if(liveBikes[i]==this)
 					return true; // If we found the bike, it is alive
 			// If we didn't find the bike, then it is considered dead
 			return false;
@@ -181,23 +181,23 @@ var newModel = function(){
 		this.revive = function()
 		{
 			// Make sure we haven't already added the bike
-			for(var i=0;i<aliveBikes.length;i++)
-				if(aliveBikes[i]==this)
+			for(var i=0;i<liveBikes.length;i++)
+				if(liveBikes[i]==this)
 					return false; // If we already have the bike, don't add it
 
 			// Revive the bike
-			aliveBikes[aliveBikes.length] = this;
+			liveBikes[liveBikes.length] = this;
 			return true;
 		}
 
 		this.die = function()
 		{
 			// look for bike in alive array
-			for(var i=0;i<aliveBikes.length;i++)
+			for(var i=0;i<liveBikes.length;i++)
 				// If we found the bike
-				if(aliveBikes[i]==this)
+				if(liveBikes[i]==this)
 				{
-					aliveBikes.splice(i, 1);
+					liveBikes.splice(i, 1);
 					break;
 				}
 
@@ -292,11 +292,11 @@ var newModel = function(){
 			}
 
 		// look for bike in alive array
-		for(var i=0;i<aliveBikes.length;i++)
+		for(var i=0;i<liveBikes.length;i++)
 			// If we found the bike
-			if(aliveBikes[i]==bike)
+			if(liveBikes[i]==bike)
 			{
-				aliveBikes.splice(i, 1);
+				liveBikes.splice(i, 1);
 				break;
 			}
 	}
@@ -305,13 +305,13 @@ var newModel = function(){
 	pub.RemoveAllBikes = function()
 	{
 		bikes = [];
-		aliveBikes = [];
+		liveBikes = [];
 	}
 
 	/// Gets a list of all the bikes that have not crashed yet
 	pub.GetLiveBikes = function()
 	{
-		return aliveBikes;
+		return liveBikes;
 	}
 
 
@@ -367,9 +367,9 @@ var newModel = function(){
 	pub.UpdateObjects = function()
 	{
 		// Move all objects
-		for(var i=0;i<aliveBikes.length;i++)
+		for(var i=0;i<liveBikes.length;i++)
 		{
-			var b = aliveBikes[i];
+			var b = liveBikes[i];
 			// If the bike has no direction then don't move it
 			if(b.rowDirection != 0 || b.colDirection != 0 )
 				b.progress += b.speed; // Update the bike's progress
@@ -383,9 +383,9 @@ var newModel = function(){
 				// keep the progress that exceeded the threshhold
 				b.progress = b.progress % threashhold;
 
-				// Place a wall on the previous position
+				// Place a wall on the previous position. It may trigger 
 				grid[b.row][b.col] = wall;
-				updateGrid[b.row][b.col] = wall;
+				updateGrid[b.row][b.col] = wall; //TODO this is just a patch to fix the enemy dies when their wall is hit
 
 				// Move the bike to its new location
 				b.row += b.rowDirection;
