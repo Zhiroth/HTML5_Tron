@@ -799,6 +799,11 @@ function Bike(x, y, color)
 
     this.x = x;
     this.y = y;
+
+    this.prevX = x;
+    this.prevY = y;
+
+    this.color = color;
 }
 
 

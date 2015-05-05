@@ -162,22 +162,23 @@ var ModelUnitTests = (function(){
 	}
 
 	// General testing area
-	pub.AddStep = function()
+	pub.AddDebug = function()
 	{
-		window.onload = function()
-		{
+		console.log("HELLO");
+		//window.onload = function()
+		//{
 			var format = sprintf;
 			var model = Model; //can be changed to newModel()
 
 		    var div = document.createElement("div");
 		    div.setAttribute("style","padding: 1em;");
-		    var button = document.createElement("input");
-		    button.type = "button";
-		    button.value = "Update";
-		    button.onclick = function()
+		    var refresh = document.createElement("input");
+		    refresh.type = "button";
+		    refresh.value = "Refresh";
+		    refresh.onclick = function()
 		    {
 		    	// Do an update
-		    	model.UpdateObjects();
+		    	//model.UpdateObjects();
 
 		    	// Output the stats
 		    	var o = "";
@@ -189,10 +190,10 @@ var ModelUnitTests = (function(){
 		    	// Show the output
 		    	div.innerHTML = o;
 		    };
-		    document.body.appendChild(button);
+		    document.body.appendChild(refresh);
 		    document.body.appendChild(div);
-		    button.onclick();
-		}
+		    refresh.onclick();
+		//}
 	}
 
 	pub.Test = function()
@@ -218,27 +219,26 @@ var ModelUnitTests = (function(){
 
 // console.log(Model.GetLiveBikes());
 
-var b1 = new Model.BIKE();
-b1.startRow = 0;
-b1.startCol = 0;
-b1.startRowDirection = 0;
-b1.startColDirection = 1;
-b1.extra.name = "Bob";
-b1.extra.name1 = "Bob";
-b1.extra.name2 = "Bob";
-
-Model.AddBike(b1);
-Model.AddBike(new Model.BIKE());
-Model.AddBike(new Model.BIKE());
-Model.AddBike(new Model.BIKE());
+//var b1 = new Model.BIKE();
+//b1.startRow = 0;
+//b1.startCol = 0;
+//b1.startRowDirection = 0;
+//b1.startColDirection = 1;
+//b1.extra.name = "Bob";
+//b1.extra.name1 = "Bob";
+//b1.extra.name2 = "Bob";
+//
+//Model.AddBike(b1);
+//Model.AddBike(new Model.BIKE());
+//Model.AddBike(new Model.BIKE());
+//Model.AddBike(new Model.BIKE());
 
 //Model.StartGame();
 
 //----------------------------------
-var date = new Date();
-console.log("--- Model JS Finished "+date.getHours()+":"+date.getMinutes()+"."+date.getSeconds()+"---");
+//var date = new Date();
+//console.log("--- Model JS Finished "+date.getHours()+":"+date.getMinutes()+"."+date.getSeconds()+"---");
 
 //ModelUnitTests.runAll();
-Model.SetBasePlayerSpeed(100);
-Model.StartGame();
-ModelUnitTests.AddStep();
+//Model.SetBasePlayerSpeed(100);
+//Model.StartGame();

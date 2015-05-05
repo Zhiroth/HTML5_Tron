@@ -8,7 +8,7 @@ var newModel = function(){
 	var defaultBoardCols = 30;
 	var grid;
 
-	var defaultSpeed = 25;
+	var defaultSpeed = 50;
 	var threashhold = 100;	// How much cumulative "speed" a bike needs to accumulate before moving one square.
 	var bikes = [];
 	var aliveBikes = []; // Contains the offical list of bikes that are still alive in the game.
@@ -160,6 +160,8 @@ var newModel = function(){
 		this.colDirection = 0;	// current column direction
 		this.speed = 0; 		// current speed of bike
 		this.progress = 0;		// how much progress it's made towards moving to the next square
+		this.fromRowDirection = null;
+		this.fromColDirection = null;
 		
 		// Note: The methods dealing with the bike life are written so that the Model.getLiveBikes() is fast.
 		//   While we <i> could </i> also keep track of whether or not this bike is alive I don't want to have
@@ -200,6 +202,64 @@ var newModel = function(){
 				}
 
 		}
+	
+
+		/// Tells the model to give the specified player a new direction
+		///        RowDirection & ColDirection are either -1, 0, or 1
+		var PlayerTurns = function(bike, RowDirection, ColDirection)
+		{
+			// If the player's directions add up to zero then ignore
+			if(bike.fromRowDirection+RowDirection == 0 && bike.fromColDirection+ColDirection==0)
+				return;
+
+			bike.rowDirection = RowDirection;
+			bike.colDirection = ColDirection;
+		}
+
+		this.TurnsNorth = function()
+		{
+			PlayerTurns(this, -1, 0);
+		}
+
+		this.TurnsEast = function()
+		{
+			PlayerTurns(this, 0, 1);
+		}
+
+		this.TurnsSouth = function()
+		{
+			PlayerTurns(this, 1, 0);
+		}
+
+		this.TurnsWest = function()
+		{
+			PlayerTurns(this, 0, -1);
+		}
+		
+		this.StartsNorth = function()
+		{
+			this.startRowDirection = -1;
+			this.startColDirection =  0;
+		}
+
+		this.StartsEast = function()
+		{
+			this.startRowDirection = 0; 
+			this.startColDirection = 1;
+		}
+
+		this.StartsSouth = function()
+		{
+			this.startRowDirection = 1; 
+			this.startColDirection = 0;
+		}
+
+		this.StartsWest = function()
+		{
+			this.startRowDirection = 0;
+			this.startColDirection = -1;
+		}
+
 		this.extra= {};  // Holds any kind of data you want, I won’t use it in the Model.
 	}
 
@@ -294,6 +354,11 @@ var newModel = function(){
 			else
 				b.speed = b.startSpeed;
 
+			// TODO remove
+
+			if(b.row >= defaultBoardRows || b.col >= defaultBoardCols || b.row < 0 || b.col < 0)
+				throw new Error("Cannot start bike outside of board.");
+
 			grid[b.row][b.col] = b;
 		}
 	}
@@ -312,11 +377,15 @@ var newModel = function(){
 			// If the bike has made enough progress to move
 			if(b.progress >= threashhold)
 			{
+				b.fromColDirection = b.colDirection;
+				b.fromRowDirection = b.rowDirection;
+
 				// keep the progress that exceeded the threshhold
 				b.progress = b.progress % threashhold;
 
 				// Place a wall on the previous position
 				grid[b.row][b.col] = wall;
+				updateGrid[b.row][b.col] = wall;
 
 				// Move the bike to its new location
 				b.row += b.rowDirection;
@@ -355,34 +424,6 @@ var newModel = function(){
 	{
 
 		// returns array of (row, column) pairs indicating collision positions
-	}
-
-	pub.PlayerTurnsNorth = function(bike)
-	{
-		PlayerTurns(bike, -1, 0);
-	}
-
-	pub.PlayerTurnsEast = function(bike)
-	{
-		PlayerTurns(bike, 0, 1);
-	}
-
-	pub.PlayerTurnsSouth = function(bike)
-	{
-		PlayerTurns(bike, 1, 0);
-	}
-
-	pub.PlayerTurnsWest = function(bike)
-	{
-		PlayerTurns(bike, 0, -1);
-	}
-
-	/// Tells the model to give the specified player a new direction
-	///        RowDirection & ColDirection are either -1, 0, or 1
-	var PlayerTurns = function(bike, RowDirection, ColDirection)
-	{
-		bike.rowDirection = RowDirection;
-		bike.colDirection = ColDirection;
 	}
 
 	/// Tells the model that the given Player wants to activate their ability

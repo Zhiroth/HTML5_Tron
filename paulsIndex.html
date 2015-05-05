@@ -181,32 +181,53 @@
     TIME_PER_FRAME = 33;
     var game_loop = null; //setInterval(update, TIME_PER_FRAME);
 
+    // Scale: The number of pixels that make up one "cell" in the model
+    var modelScale = 10;
+
+    
+
     //bike1
-    var bike1 = null;
-    // var bike1_x = 60;
-    // var bike1_y = 60;
+    // setup bikes
+    var bike1 = new Model.BIKE();
+    bike1.startRow = 6; //y
+    bike1.startCol = 6; //x
     var bike1_color = 0x0000CC;
-    var bike1_speed = 10;
-    var bike1_direction = "RIGHT";
+    //var bike1_speed = 10;
+    bike1.StartsEast(); // Right
     var bike1_powerup = false;
     var bike1_powerupType = "speed up";
     var bike1_powerupFlash = true;
 
+    var bike1View = arenaView.addBike(bike1.startCol * modelScale, bike1.startRow * modelScale, bike1_color);
 
-    
 
     //bike2
-    var bike2_x = 630;
-    var bike2_y = 430;
+    var bike2 = new Model.BIKE();
+    bike2.startCol = 63; //x
+    bike2.startRow = 43; //y
     var bike2_color = 0xFF9933;
-    var bike2_speed = 10;
-    var bike2_direction = "LEFT";
+    //var bike2_speed = 10;
+    bike2.StartsWest(); // Left
     var bike2_powerup = false;
     var bike2_powerupType = "break walls";
     var bike2_powerupFlash = true;
+ 
+    var bike2View = arenaView.addBike(bike2.startCol * modelScale, bike2.startRow * modelScale, bike2_color);    
 
 
-    bike2View = arenaView.addBike(bike2_x, bike2_y, bike2_color);
+    //bike2
+    // var bike2 = new Model.BIKE();
+    // bike2.startRow = 630;
+    // bike2.startCol = 430;
+    // var bike2_color = 0xFF9933;
+    // //var bike2_speed = 10;
+    // var bike2_direction = "LEFT";
+    // var bike2_powerup = false;
+    // var bike2_powerupType = "break walls";
+    // var bike2_powerupFlash = true;
+
+
+    //bike2View = arenaView.addBike(bike2_x, bike2_y, bike2_color);
 
     var count = 3;
     var coutDownTimer = null;
@@ -240,21 +261,19 @@
     {
         console.log("IN setup");
         game_loop = setInterval(update, TIME_PER_FRAME);
-        Model.SetBoardRows(arenaWidth/10);
-        Model.SetBoardColumns(arenaHeight/10);
+        Model.SetBoardRows(arenaHeight/10);
+        Model.SetBoardColumns(arenaWidth/10);
         // setup arena size
         // arenaWidth
         // arenaHeight
         // setup mode
 
 
-        // setup bikes
-        bike1 = new Model.BIKE();
-        bike1View = arenaView.addBike(bike1.row * 10, bike1.col * 10, bike1_color);
         // get speeds
         // get positions
 
         Model.AddBike(bike1);
+        Model.AddBike(bike2);
         Model.StartGame();
     }
 
@@ -287,33 +306,57 @@
         view_renderer.render(view_stage);     // render the stage
     }
 
+
+    function saveBikeViewPos(bikeView)
+    {
+        bikeView.prevX = bikeView.x;
+        bikeView.prevY = bikeView.y;
+    }
+
+    function drawBike(bike, bikeView)
+    {  
+        var percentProg = bike.progress/Model.GetSpeedThreshhold();
+        if (bike.fromRowDirection == 1) //up
+        {
+            bikeView.y = parseInt(modelScale * (bike.row + percentProg - .5)); //bike1_y;
+        }
+        else if(bike.fromRowDirection == -1)
+        {
+            bikeView.y = parseInt(modelScale * (bike.row - percentProg + .5)); //bike1_y;
+        }
+        else // 0 or null: wasn't moving
+        {
+            bikeView.y = bike.row * modelScale;
+        }
+
+
+        if (bike.fromColDirection == 1) //side
+        {
+            bikeView.x = parseInt(modelScale * (bike.col + percentProg - .5)); //bike1_y;
+        }
+        else if(bike.fromColDirection == -1)
+        {
+            bikeView.x = parseInt(modelScale * (bike.col - percentProg + .5)); //bike1_y;
+        }
+        else // 0 or null: wasn't moving
+        {
+            bikeView.x = bike.col * modelScale;
+        }
+
+        //draw wall behind bike
+        arenaView.drawWall(bikeView.x, bikeView.y, bikeView.prevX, bikeView.prevY, bikeView.color);
+    }
+
     //moves the bikes based on last direction
     function update()
     {
-        // calculate bike movement
-        if (bike1_direction == "UP")
-            Model.PlayerTurnsNorth(bike1); // bike1_y -= bike1_speed;  //w
-        else if (bike1_direction == "LEFT")
-            Model.PlayerTurnsWest(bike1); // bike1_x -= bike1_speed;  //a
-        else if (bike1_direction == "DOWN")
-            Model.PlayerTurnsSouth(bike1); // bike1_y += bike1_speed;  //s
-        else if (bike1_direction == "RIGHT")
-            Model.PlayerTurnsEast(bike1); // bike1_x += bike1_speed;  //d
-        console.log("Bike1: ", bike1);
-        //keep bike in the arena
-        // if (bike1_x >= arenaWidth) bike1_x = arenaWidth - bike1_speed;
-        // if (bike1_x < 0) bike1_x = 0;
-        // if (bike1_y >= arenaHeight) bike1_y = arenaHeight - bike1_speed;
-        // if (bike1_y < 0) bike1_y = 0;
-
-        //draw wall behind bike
-        // arenaView.drawWall(bike1View.x, bike1View.y, bike1_x, bike1_y, bike1_color);
+        saveBikeViewPos(bike1View);
+        saveBikeViewPos(bike2View);
 
         Model.UpdateObjects();
 
-        //move the bike
-        bike1View.x = bike1.row * 10; //bike1_x;
-        bike1View.y = bike1.col * 10; //bike1_y;
+        drawBike(bike1, bike1View);
+        drawBike(bike2, bike2View);
 
         // bike 1 power up
         if (bike1_powerup)
@@ -325,47 +368,7 @@
             flashTimer1 = setTimeout(function() { powerUpFlash(1); }, flashInterval1);
         }
 
-        // calculate bike movment
-        if (bike2_direction == "UP")
-            bike2_y -= bike2_speed;  
-        else if (bike2_direction == "LEFT")
-            bike2_x -= bike2_speed;  
-        else if (bike2_direction == "DOWN")
-            bike2_y += bike2_speed;  
-        else if (bike2_direction == "RIGHT")
-            bike2_x += bike2_speed;  
 
-         //keep bike in the arena
-        if (bike2_x >= arenaWidth) bike2_x = arenaWidth - bike2_speed;
-        if (bike2_x < 0) bike2_x = 0;
-        if (bike2_y >= arenaHeight) bike2_y = arenaHeight - bike2_speed;
-        if (bike2_y < 0) bike2_y = 0;
-
-        //draw wall behind bike
-        arenaView.drawWall(bike2View.x, bike2View.y, bike2_x, bike2_y, bike2_color);
-
-        //move the bike
-        bike2View.x = bike2_x;
-        bike2View.y = bike2_y;
-
-        // bike 2 power up
-        if (bike2_powerup)
-        {
-            bike2_powerup = false;
-            puh2View.changeText("");
-            bike2_powerupFlash = false;
-            flashInterval2 = 1000;
-            flashTimer2 = setTimeout(function() { powerUpFlash(2); }, flashInterval2);
-        }
-
-        //draw collision when bikes hit eachother
-        // if (bike1View.x == bike2View.x && bike1View.y == bike2View.y)
-        // {
-        //     collision1View = arenaView.addCollision(bike1View.x, bike1View.y);
-        //     collision1View.radius++;
-        // }
-
-        // Model.UpdateObjects();
     }
 
     function powerUpFlash(player)
@@ -426,26 +429,26 @@
         var keyPressed = String.fromCharCode(event.keyCode);
 
         //for bike1
-        if (keyPressed == "W" && bike1_direction != "DOWN")
-            bike1_direction = "UP";
-        else if (keyPressed == "A" && bike1_direction != "RIGHT")
-            bike1_direction = "LEFT";
-        else if (keyPressed == "S" && bike1_direction != "UP")          
-            bike1_direction = "DOWN";
-        else if (keyPressed == "D" && bike1_direction != "LEFT")
-            bike1_direction = "RIGHT";
+        if (keyPressed == "W")
+            bike1.TurnsNorth();
+        else if (keyPressed == "A")
+            bike1.TurnsWest();
+        else if (keyPressed == "S")
+            bike1.TurnsSouth();
+        else if (keyPressed == "D")
+            bike1.TurnsEast();
         else if (keyPressed == "F")
             bike1_powerup = true;
 
         //for bike2 ijkl
-        if (keyPressed == "I" && bike2_direction != "DOWN")
-            bike2_direction = "UP";
-        else if (keyPressed == "J" && bike2_direction != "RIGHT")
-            bike2_direction = "LEFT";
-        else if (keyPressed == "K" && bike2_direction != "UP")
-            bike2_direction = "DOWN";
-        else if (keyPressed == "L" && bike2_direction != "LEFT")
-            bike2_direction = "RIGHT";
+        if (keyPressed == "I")
+            bike2.TurnsNorth();
+        else if (keyPressed == "J")
+            bike2.TurnsWest();
+        else if (keyPressed == "K")
+            bike2.TurnsSouth();
+        else if (keyPressed == "L")
+            bike2.TurnsEast();
         else if (keyPressed == "H")
             bike2_powerup = true;
     }
