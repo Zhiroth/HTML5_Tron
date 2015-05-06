@@ -211,9 +211,84 @@
         toggleBikeSpeedButton.changeText("bike speed: " + bikeSpeedText);
     }
 
+
+
+
+    var arenaWrapButton = optionsView.addButton("arena wrap: no");
+    arenaWrapButton.setClickHandler(toggleArenaWrap); 
+    var arenaWrapText = "no";
+
+    //BOARD WRAP NOT YET IMPLEMENTED IN MODEL
+    function toggleArenaWrap()
+    {
+        if(arenaWrapText == "no")
+        {
+            arenaWrapText = "yes";
+            Model.SetBoardWrap(true);
+        }
+        else
+        {
+            arenaWraptText = "no"
+            Model.SetBoardWrap(false);
+        }
+
+        arenaWrapButton.changeText("arena wrap: " + arenaWrapText);
+    }
+
+
+    var enablePowerupsButton = optionsView.addButton("power ups enabled: yes");
+    enablePowerupsButton.setClickHandler(toggleEnablePowerups);
+    var enablePowerupsText = "yes";
+
+    function toggleEnablePowerups()
+    {
+        if(enablePowerupsText == "yes")
+        { 
+            enablePowerupsText = "no";
+            //update model
+        }
+        else
+        {
+            enablePowerupsText = "yes";
+            //update model
+        }
+
+        enablePowerupsButton.changeText("power ups enabled: " + enablePowerupsText);
+    }
+
+
+
+    var powerupDurationButton = optionsView.addButton("power up duration: moderate");
+    powerupDurationButton.setClickHandler(togglePowerupDuration);
+    var powerupDurationText = "moderate";
+
+    function togglePowerupDuration()
+    {
+        if(powerupDurationText == "short")
+        {
+            powerupDurationText = "moderate";
+            //update model
+        }
+        else if(powerupDurationText == "moderate") 
+        {
+            powerupDurationText = "long";
+            //update model
+        }
+        else 
+        {
+            powerupDurationText = "short";
+            //update model
+        }
+
+
+        powerupDurationButton.changeText("power up duration: " + powerupDurationText);
+    }
+
+
     //exit options window
     var exitOptionsButton = optionsView.addButton("done");
     exitOptionsButton.setClickHandler(displayArenaView);
+
 
 
 

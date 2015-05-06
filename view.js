@@ -69,7 +69,7 @@ function TronView(arenaWidth, arenaHeight)
 
 
 
-    var menuScreen = new MenuScreen(700, 500);
+    var menuScreen = new MenuScreen(700, 550);
     //var testButton = menuScreen.addButton(20, 20, 100, 50, "touch me");
     view_stage.addChild(menuScreen);
 
