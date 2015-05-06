@@ -79,6 +79,16 @@ var newModel = function(){
 
 	}
 
+	pub.RemoveAllPowerUpTypes = function()
+	{
+
+	}
+
+	pub.SetAllPowerUpDurations = function(ticks)
+	{
+
+	}
+
 	// Holds properties of a the type of powerup 
 	pub.PowerUpTypes.SelfSpeedUp =
 	{
@@ -170,11 +180,16 @@ var newModel = function(){
 
 	//--------- GRID methods ----------
 
-	var outsideBounds;
+	var processOutsideBounds;
 	var grid;
 	var updateGrid;
 
-	var wall = {hitBy:function(){}, solid: true};
+	var Wall = {hitBy:function(){}, solid: true};
+
+	var isOutside = function(gameObj)
+	{
+		return (gameObj.row >= defaultBoardRows || gameObj.col >= defaultBoardCols || gameObj.row < 0 || gameObj.col < 0);
+	}
 
 	var wrap = function(gameObj)
 	{
@@ -183,22 +198,24 @@ var newModel = function(){
 	}
 	var noWrap = function(gameObj)
 	{
-		//TODO noWrap function
-		console.log("Not wrapping...");
+		if(isOutside(gameObj))
+		{
+			gameObj.die();
+		}
 	}
 
 	var isWrapAllowed = function()
 	{
-		return outsideBounds==wrap;
+		return processOutsideBounds==wrap;
 	}
 
 	// The function to calc wraping
 	var setWrap = function(allow)
 	{
 		if(allow)
-			outsideBounds = wrap;
+			processOutsideBounds = wrap;
 		else
-			outsideBounds = noWrap;
+			processOutsideBounds = noWrap;
 	}
 
 	var resetGrid = function()
@@ -247,6 +264,8 @@ var newModel = function(){
 		this.startSpeed = null; // if null then it will be 10 or whatever you set with “SetBasePlayerSpeed(int)”
 		this.row = 0; 	// current row position
 		this.col = 0;		// current column position
+		this.prevRow = null;
+		this.prevCol = null;
 		this.rowDirection = 0;	// current row direction
 		this.colDirection = 0;	// current column direction
 		this.speed = 0; 		// current speed of bike.
@@ -456,7 +475,8 @@ var newModel = function(){
 			else
 				b.speed = b.startSpeed;
 
-			// TODO remove
+			b.prevRow = b.row;
+			b.prevCol = b.col;
 
 			if(b.row >= defaultBoardRows || b.col >= defaultBoardCols || b.row < 0 || b.col < 0)
 				throw new Error("Cannot start bike outside of board.");
@@ -469,39 +489,66 @@ var newModel = function(){
 	pub.UpdateObjects = function()
 	{
 		// Move all objects
-		for(var i=0;i<liveBikes.length;i++)
+		for(var i in liveBikes)
 		{
 			var b = liveBikes[i];
 
 			UpdateGameObjectProgress(b);
+		}
+
+		for(var i in liveBikes)
+		{
+			var b = liveBikes[i];
+
+			StartUpdateGOPosition(b);
+			
+		}
+
+		// Finished moving all objects
+		// Switch the grids
+		var temp = grid;
+		grid = updateGrid;
+		updateGrid = temp;
+	}
+
+	var UpdateGameObjectProgress = function(go)
+	{
+		// If the bike has no direction then don't move it
+		if(go.rowDirection != 0 || go.colDirection != 0 )
+			go.progress += go.speed; // Update the bike's progress
+	}
+
+	var StartUpdateGOPosition = function(b, board)
+	{
+		var moved = false;
+
+		// If the bike has made enough progress to move
+		if(b.progress >= threashhold)
+		{
+			b.prevRow = b.row;
+			b.prevCol = b.col;
+			b.fromColDirection = b.colDirection;
+			b.fromRowDirection = b.rowDirection;
+
+			// keep the progress that exceeded the threshhold
+			b.progress = b.progress % threashhold;
+
+			// Place a wall on the previous position. It may trigger 
+			if(b.hasOwnProperty('drawWall') && b.drawWall)
+				grid[b.row][b.col] = Wall;
+			// updateGrid[b.row][b.col] = Wall; //TODO this is just a patch to fix the enemy dies when their wall is hit
+
+			// Move the bike to its new location
+			b.row += b.rowDirection;
+			b.col += b.colDirection;
 
 
-			// If the bike has made enough progress to move
-			if(b.progress >= threashhold)
+			// Returns true if the bike didn't die from being out of bounds
+			if(processOutsideBounds(b))
 			{
-				b.fromColDirection = b.colDirection;
-				b.fromRowDirection = b.rowDirection;
+				var ug = updateGrid[b.row][b.col];
 
-				// keep the progress that exceeded the threshhold
-				b.progress = b.progress % threashhold;
-
-				// Patch: Require that the player's progress reset to zero so the drawn walls get drawn to the corners.
-				//b.progress = 0;
-
-				// Place a wall on the previous position. It may trigger 
-				grid[b.row][b.col] = wall;
-				updateGrid[b.row][b.col] = wall; //TODO this is just a patch to fix the enemy dies when their wall is hit
-
-				// Move the bike to its new location
-				b.row += b.rowDirection;
-				b.col += b.colDirection;
-
-
-				if(b.row >= defaultBoardRows || b.col >= defaultBoardCols || b.row < 0 || b.col < 0)
-				{
-					b.die();
-				}
-				else if(updateGrid[b.row][b.col].hasOwnProperty('hitBy')) // Check new spot of bike
+				if(updateGrid[b.row][b.col].hasOwnProperty('hitBy')) // Check new spot of bike
 				{
 					// Let the object know there was a collision with said object
 					updateGrid[b.row][b.col].hitBy(b);
@@ -518,21 +565,10 @@ var newModel = function(){
 					// Move it
 					updateGrid[b.row][b.col] = b;
 				}
-			}
-		}
 
-		// Finished moving all objects
-		// Switch the grids
-		var temp = grid;
-		grid = updateGrid;
-		updateGrid = temp;
-	}
+			} //else the object ran out of bounds and died
 
-	var UpdateGameObjectProgress = function(go)
-	{
-		// If the bike has no direction then don't move it
-		if(go.rowDirection != 0 || go.colDirection != 0 )
-			go.progress += go.speed; // Update the bike's progress
+		} // end threshhold check
 	}
 
 	/// Grabs a list of collisions that happened on the last UpdateObjects
