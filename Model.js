@@ -82,8 +82,7 @@ var newModel = function(){
 	// Holds properties of a the type of powerup 
 	pub.PowerUpTypes.SelfSpeedUp =
 	{
-		name: "Speed Up",
-
+		name: "Speed Up"
 	}
 
 
@@ -234,8 +233,6 @@ var newModel = function(){
 	}
 	resetGrid();
 		
-
-	//todo add Power Up setting methods
 
 
 	//- - - - - - - - - - - - Bike Methods- - - - - - - - - - - - 
@@ -499,19 +496,18 @@ var newModel = function(){
 				b.row += b.rowDirection;
 				b.col += b.colDirection;
 
-				var ud = updateGrid[b.row][b.col];
 
 				if(b.row >= defaultBoardRows || b.col >= defaultBoardCols || b.row < 0 || b.col < 0)
 				{
 					b.die();
 				}
-				else if(ud.hasOwnProperty('hitBy')) // Check new spot of bike
+				else if(updateGrid[b.row][b.col].hasOwnProperty('hitBy')) // Check new spot of bike
 				{
 					// Let the object know there was a collision with said object
-					ud.hitBy(b);
+					updateGrid[b.row][b.col].hitBy(b);
 
 					// If the object is solid, the bike dies
-					if(ud.solid)
+					if(updateGrid[b.row][b.col].solid)
 						b.die();
 
 					//TODO report crash	
