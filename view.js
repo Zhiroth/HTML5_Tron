@@ -1,5 +1,3 @@
-
-
 var view_stage;
 var view_renderer;
 var view_boundingbox;
@@ -20,7 +18,6 @@ function TronView(arenaWidth, arenaHeight)
     /*
     view_boundingbox = new PIXI.Graphics();
     view_stage.addChild(view_boundingbox);
-
     view_boundingbox.interactive = true;
     view_boundingbox.clear();
     view_boundingbox.lineStyle(2,0xffffff);
@@ -874,13 +871,3 @@ function animate()
     view_renderer.render(view_stage);     // render the stage
 }
 */
-
-
-
-
-
-
-
-
-
-
