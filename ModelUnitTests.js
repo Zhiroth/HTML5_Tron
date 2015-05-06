@@ -1,6 +1,7 @@
 
 
 var ModelUnitTests = (function(){
+
 	var pub = {}; // Add all methods/variables that you want to be public
 	tests = {};
 	pub.tests = tests; // Contains references to all tests that can be run
@@ -247,35 +248,46 @@ var ModelUnitTests = (function(){
 //Model.SetBasePlayerSpeed(100);
 //Model.StartGame();
 
-function replaceDraw()
+
+
+
+function newTest()
 {
-	// TODO replace "arenaView" with "this" before replacing the function drawWall
-	arenaView.drawWall=function(x1, y1, x2, y2, color, xCorner, yCorner)
-    {
-        //origin of the rectangle (add 3 to both dimensions so wall is centered relative to bike size 10 and wall thickness 4)
-        var xTop = Math.min(x1, x2) + 3;
-        var yTop = Math.min(y1, y2) + 3;
+	var t = Object.create(GameObject);
+	t.pub = {};
 
-        var xDif = Math.abs(x1 - x2);
-        var yDif = Math.abs(y1 - y2);
+	t.name = "Alice";
 
-        //if bike movement was horizontal, make rectangle height 4 and add 3 to length
-        //if bike movement was vertical,   make rectangle length 4 and add 3 to height
-        if (xDif == 0) 
-        {
-            xDif = 4;
-            yDif += 3;
-        }
-        else
-        {
-            yDif = 4;
-            xDif += 3;
-        }
+	t.pub.setName = function(n)
+	{
+		t.name = n;
+	}
+	t.pub.getName = function()
+	{
+		t.g();
+		return t.name;
+	}
 
-        arenaView.beginFill(0x00CC00, 1);
-        arenaView.drawRect(xTop, yTop, xDif, yDif); //x, y, width, height
-        arenaView.endFill();     
-
-    }.bind(this);
+	return t.pub;
 }
 
+
+//console.log("--");
+//var tryIt = newTest();
+//
+//GameObject.call(tryIt);
+//for(var ikk=0;ikk<3;ikk++)
+//{
+//	console.log("Name: ",tryIt.getName());
+//}
+//
+//console.log("--");
+//
+//console.log("--");
+//tryIt.setName("Bob");
+//for(var ikk=0;ikk<3;ikk++)
+//{
+//	console.log("Name: ",tryIt.getName());
+//}
+//
+//console.log("--");

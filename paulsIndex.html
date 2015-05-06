@@ -175,7 +175,7 @@
     document.addEventListener("keydown", keyDownHandler, false);
 
     // game timer
-    TIME_PER_FRAME = 33;
+    TIME_PER_FRAME = 20;
     var game_loop = null; //setInterval(update, TIME_PER_FRAME);
 
     // Scale: The number of pixels that make up one "cell" in the model
@@ -257,9 +257,6 @@
     // sets up game
     function setup()
     {
-        // Patch: calls a function from the ModelUnitTests.js
-        replaceDraw();
-
         game_loop = setInterval(update, TIME_PER_FRAME);
         Model.SetBoardRows(arenaHeight/modelScale);
         Model.SetBoardColumns(arenaWidth/modelScale);
@@ -310,16 +307,16 @@
 
     function drawBike(bike, bikeView)
     {  
-        var offset = Model.GetBasePlayerSpeed()/Model.GetProgressThreshhold();
-        offset = 0;
+        // Calculate how "far" the bike is from moving to the next cell
         var percentProg = 1 - bike.progress/Model.GetProgressThreshhold();
+
         if (bike.fromRowDirection == 1) //up
         {
-            bikeView.y = parseInt(modelScale * (bike.row - percentProg - offset));
+            bikeView.y = parseInt(modelScale * (bike.row - percentProg));
         }
-        else if(bike.fromRowDirection == -1)
+        else if(bike.fromRowDirection == -1) //down
         {
-            bikeView.y = parseInt(modelScale * (bike.row + percentProg + offset));
+            bikeView.y = parseInt(modelScale * (bike.row + percentProg));
         }
         else // 0 or null: wasn't moving
         {
@@ -327,21 +324,31 @@
         }
 
 
-        if (bike.fromColDirection == 1) //side
+        if (bike.fromColDirection == 1) //right
         {
-            bikeView.x = parseInt(modelScale * (bike.col - percentProg - offset));
+            bikeView.x = parseInt(modelScale * (bike.col - percentProg));
         }
-        else if(bike.fromColDirection == -1)
+        else if(bike.fromColDirection == -1) // left
         {
-            bikeView.x = parseInt(modelScale * (bike.col + percentProg + offset)); 
+            bikeView.x = parseInt(modelScale * (bike.col + percentProg)); 
         }
         else // 0 or null: wasn't moving
         {
             bikeView.x = bike.col * modelScale;
         }
 
-        //draw wall behind bike
-        arenaView.drawWall(bikeView.x, bikeView.y, bikeView.prevX, bikeView.prevY, bikeView.color, null, null);
+        // If the bike wants it's wall drawn this frame
+        if(bike.drawWall)
+        {
+            // Find the coordinates of the corner the bike turned through (if at all)
+            var cornerX = modelScale * (bike.col - bike.fromColDirection);
+            var cornerY = modelScale * (bike.row - bike.fromRowDirection);
+
+            // Draw a wall to that corner
+            arenaView.drawWall(bikeView.prevX, bikeView.prevY, cornerX, cornerY, bikeView.color);
+            // Draw from that corner to it's new progress position.
+            arenaView.drawWall(cornerX, cornerY, bikeView.x, bikeView.y, bikeView.color);
+        }
     }
 
     //moves the bikes based on last direction

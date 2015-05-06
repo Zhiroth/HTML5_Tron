@@ -4,6 +4,29 @@
 
 var newModel = function(){
 	var pub = {}; // Add all methods/variables that you want to be public
+
+	// Represents a physical object in the game. Used as follows for inheritance:
+	// var pub = Object.create(GameObject); //This means pub inherits from GameObject
+	var BoardObject =
+	{
+		row: 0, 	// current row position
+		col: 0,		// current column position
+		lastRow: 0,
+		lastCol: 0,
+		rowDirection: 0,	// current row direction
+		colDirection: 0,	// current column direction
+		speed: 0, 		// current speed of bike.
+		progress: 0,		// how much progress it's made towards moving to the next square
+		fromRowDirection: null, // The last row direction we moved in
+		fromColDirection: null, // The last col direction we moved in
+		solid: false,
+		visible: true,
+		hitBy: function(obj){}, // "How will YOU react when hit by said obj? Obj will react to you after this function ends."
+		update: function(){}
+	}
+
+	// - - - - - Basic Model Variables - - - - - - 
+
 	var defaultBoardWrap = false;
 	var defaultBoardRows = 30;
 	var defaultBoardCols = 30;
@@ -14,10 +37,80 @@ var newModel = function(){
 	var bikes = [];
 	var liveBikes = []; // Contains the offical list of bikes that are still alive in the game.
 
-	pub.getBikes = function()
+
+	pub.crashImpactPercent = .3; //1 = all the way into the cell, 0 = previous cell
+
+	pub.getBikes = function() // For debugging and testing purposes mainly
 	{
 		return bikes;
 	}
+
+	function shallowCopy(oldObj, intoObj) {
+	    var newObj = intoObj;
+	    for(var i in oldObj) {
+	        if(oldObj.hasOwnProperty(i)) {
+	            newObj[i] = oldObj[i];
+	        }
+	    }
+	    return newObj;
+	}
+
+	// - - - - - - - - Power Ups! - - - - - - - - 
+
+	// All properties that are common among power ups and not a Board Object.
+	var PowerUp = 
+	{
+		active: false,
+		ticksLeft: 0,
+		start: function(){},
+		tick: function(){},
+		end: function(){}
+	}
+
+
+	pub.PowerUpTypes = {};
+	pub.UsingThesePowerUpTypes = {};
+	pub.ActivePowerUps = []; // Array
+
+	// Adds all the power ups types to the game
+	pub.AddAllPowerUps = function()
+	{
+
+	}
+
+	// Holds properties of a the type of powerup 
+	pub.PowerUpTypes.SelfSpeedUp =
+	{
+
+	}
+
+
+	pub.NewPowerUp = function(PU_TYPE)
+	{
+		var pub = {};
+		// Get a "copy" of all properties from BoardObject (this is actually inheritance)
+		shallowCopy(BoardObject, pub);
+		shallowCopy()
+
+
+		pub.echo = function(s){return "no"};
+
+		pub.name = "Bob";
+		pub.greet = function()
+		{
+			return pub.name+": Hello!";
+		}
+
+		// Return the public methods and variables you can use
+		return pub;
+	}
+
+	// Automatically creates a new power up, adds it to the game, and returns a reference to it.
+	pub.AddNewPowerUp = function(PU_Type)
+	{
+
+	}
+
 		
 	//- - - - - - - - - - - - Game Settings - - - - - - - - - - - - 
 
@@ -82,7 +175,7 @@ var newModel = function(){
 	var grid;
 	var updateGrid;
 
-	var wall = {die:function(){}};
+	var wall = {hitBy:function(){}, solid: true};
 
 	var wrap = function(gameObj)
 	{
@@ -163,6 +256,7 @@ var newModel = function(){
 		this.progress = 0;		// how much progress it's made towards moving to the next square
 		this.fromRowDirection = null;
 		this.fromColDirection = null;
+		this.drawWall = true;
 
 		// Note: The methods dealing with the bike life are written so that the Model.getLiveBikes() is fast.
 		//   While we <i> could </i> also keep track of whether or not this bike is alive I don't want to have
@@ -193,6 +287,9 @@ var newModel = function(){
 
 		this.die = function()
 		{
+			// set the progress to determine how far into the object the bike appears (0-threshhold)
+			this.progress = pub.crashImpactPercent * threashhold;
+
 			// look for bike in alive array
 			for(var i=0;i<liveBikes.length;i++)
 				// If we found the bike
@@ -265,6 +362,7 @@ var newModel = function(){
 		this.Activate = function()
 		{
 			this.speed = this.speed += 10;
+			//this.drawWall = false;
 		}
 
 		this.extra= {};  // Holds any kind of data you want, I won’t use it in the Model.
@@ -401,15 +499,20 @@ var newModel = function(){
 				b.row += b.rowDirection;
 				b.col += b.colDirection;
 
+				var ud = updateGrid[b.row][b.col];
+
 				if(b.row >= defaultBoardRows || b.col >= defaultBoardCols || b.row < 0 || b.col < 0)
 				{
 					b.die();
 				}
-				else if(updateGrid[b.row][b.col].hasOwnProperty('die')) // Check new spot of bike
+				else if(ud.hasOwnProperty('hitBy')) // Check new spot of bike
 				{
-					// Crash
-					updateGrid[b.row][b.col].die();
-					b.die();
+					// Let the object know there was a collision with said object
+					ud.hitBy(b);
+
+					// If the object is solid, the bike dies
+					if(ud.solid)
+						b.die();
 
 					//TODO report crash	
 
