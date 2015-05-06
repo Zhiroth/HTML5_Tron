@@ -22,7 +22,7 @@ var newModel = function(){
 		solid: false,
 		visible: true,
 		hitBy: function(obj){}, // "How will YOU react when hit by said obj? Obj will react to you after this function ends."
-		update: function(){}
+		updateProgress: function(){}
 	}
 
 	// - - - - - Basic Model Variables - - - - - - 
@@ -70,10 +70,11 @@ var newModel = function(){
 
 	pub.PowerUpTypes = {};
 	pub.UsingThesePowerUpTypes = {};
+	pub.PowerUpsOnBoard = [];
 	pub.ActivePowerUps = []; // Array
 
 	// Adds all the power ups types to the game
-	pub.AddAllPowerUps = function()
+	pub.AddAllPowerUpTypes = function()
 	{
 
 	}
@@ -81,6 +82,7 @@ var newModel = function(){
 	// Holds properties of a the type of powerup 
 	pub.PowerUpTypes.SelfSpeedUp =
 	{
+		name: "Speed Up",
 
 	}
 
@@ -88,18 +90,11 @@ var newModel = function(){
 	pub.NewPowerUp = function(PU_TYPE)
 	{
 		var pub = {};
-		// Get a "copy" of all properties from BoardObject (this is actually inheritance)
+		// Get a copy of all properties from BoardObject and PowerUp
 		shallowCopy(BoardObject, pub);
-		shallowCopy()
+		shallowCopy(PowerUp, pub);
 
-
-		pub.echo = function(s){return "no"};
-
-		pub.name = "Bob";
-		pub.greet = function()
-		{
-			return pub.name+": Hello!";
-		}
+		pub.type = PU_TYPE;
 
 		// Return the public methods and variables you can use
 		return pub;
@@ -108,7 +103,12 @@ var newModel = function(){
 	// Automatically creates a new power up, adds it to the game, and returns a reference to it.
 	pub.AddNewPowerUp = function(PU_Type)
 	{
-
+		// Create new powerup
+		var pu = pub.NewPowerUp(PU_TYPE);
+		// Add to the game
+		PowerUpsOnBoard[PowerUpsOnBoard.length] = pu;
+		// Return a reference to it
+		return pu;
 	}
 
 		
@@ -148,12 +148,12 @@ var newModel = function(){
 	}
 
 	/// Sets the default speed for every player. Speed is added to the player’s “movement” on each update.  Defaults is 10.
-	pub.SetBasePlayerSpeed = function(speed)
+	pub.SetDefaultPlayerSpeed = function(speed)
 	{
 		defaultSpeed = speed;
 	}
 
-	pub.GetBasePlayerSpeed = function()
+	pub.GetDefaultPlayerSpeed = function()
 	{
 		return defaultSpeed;
 	}
@@ -475,9 +475,9 @@ var newModel = function(){
 		for(var i=0;i<liveBikes.length;i++)
 		{
 			var b = liveBikes[i];
-			// If the bike has no direction then don't move it
-			if(b.rowDirection != 0 || b.colDirection != 0 )
-				b.progress += b.speed; // Update the bike's progress
+
+			UpdateGameObjectProgress(b);
+
 
 			// If the bike has made enough progress to move
 			if(b.progress >= threashhold)
@@ -530,6 +530,13 @@ var newModel = function(){
 		var temp = grid;
 		grid = updateGrid;
 		updateGrid = temp;
+	}
+
+	var UpdateGameObjectProgress = function(go)
+	{
+		// If the bike has no direction then don't move it
+		if(go.rowDirection != 0 || go.colDirection != 0 )
+			go.progress += go.speed; // Update the bike's progress
 	}
 
 	/// Grabs a list of collisions that happened on the last UpdateObjects
