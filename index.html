@@ -37,8 +37,8 @@
     var arenaHeight = 500;
     
     //assign the bike objects to variables so we can move them around after they are initially created/drawn (unlike walls, which can be drawn and left where they are)
-    var bike1View;
-    var bike2View;
+    //var bike1View;
+    //var bike2View;
     var collision1View;
     var tronView = new TronView(arenaWidth, arenaHeight);
     var arenaView = tronView.getArena();
@@ -59,6 +59,61 @@
     //arenaView.hideCountdownLabel();
 
 
+    // key handlers
+    document.addEventListener("keydown", keyDownHandler, false);
+    // game timer
+    TIME_PER_FRAME = 20;
+    var game_loop = null; //setInterval(update, TIME_PER_FRAME);
+    // Scale: The number of pixels that make up one "cell" in the model
+    var modelScale = 10;
+    
+
+    var flashInterval1 = 500;
+    var flashTimer1 = null;
+    var flashInterval2 = 500;
+    var flashTimer2 = null;
+
+
+    //bike1
+    // setup bikes
+    var bike1 = new Model.BIKE();
+    bike1.startRow = 6; //y
+    bike1.startCol = 6; //x
+    var bike1_color = 0x0000CC;
+    //var bike1_speed = 10;
+    bike1.StartsEast(); // Right
+    var bike1_powerup = false;
+    var bike1_powerupType = "speed up";
+    var bike1_powerupFlash = true;
+    var bike1View = arenaView.addBike(bike1.startCol * modelScale, bike1.startRow * modelScale, bike1_color);
+    //bike2
+    var bike2 = new Model.BIKE();
+    bike2.startCol = 63; //x
+    bike2.startRow = 43; //y
+    var bike2_color = 0xFF9933;
+    //var bike2_speed = 10;
+    bike2.StartsWest(); // Left
+    var bike2_powerup = false;
+    var bike2_powerupType = "break walls";
+    var bike2_powerupFlash = true;
+ 
+    var bike2View = arenaView.addBike(bike2.startCol * modelScale, bike2.startRow * modelScale, bike2_color);    
+    //bike2
+    // var bike2 = new Model.BIKE();
+    // bike2.startRow = 630;
+    // bike2.startCol = 430;
+    // var bike2_color = 0xFF9933;
+    // //var bike2_speed = 10;
+    // var bike2_direction = "LEFT";
+    // var bike2_powerup = false;
+    // var bike2_powerupType = "break walls";
+    // var bike2_powerupFlash = true;
+    //bike2View = arenaView.addBike(bike2_x, bike2_y, bike2_color);
+    var count = 3;
+    var coutDownTimer = null;
+    var powerUpTimer = null;
+
+
 
     var playButton = arenaView.getPlayButton();
     playButton.setClickHandler(function() { countDown(); } );
@@ -69,11 +124,15 @@
     function displayOptionsScreen()
     {
         arenaView.visible = false;
+        puh1View.visible = false;
+        puh2View.visible = false;
         optionsView.visible = true;
     }
     function displayArenaView()
     {
         arenaView.visible = true;
+        puh1View.visible = true;
+        puh2View.visible = true;
         optionsView.visible = false;
     }
     
@@ -95,7 +154,7 @@
         {
             arenaSizeText = "medium";
             arenaWidth = 700;
-            arenaHeight = 500
+            arenaHeight = 500;
         }
         else if(arenaSizeText == "medium") 
         {
@@ -109,6 +168,12 @@
             arenaWidth = 600;
             arenaHeight = 400;
         }
+
+        //keep bike positions in the cornerns
+        bike2View.x = arenaWidth - 70;
+        bike2View.y = arenaHeight - 70;
+        bike2.startCol = bike2View.x / modelScale;
+        bike2.startRow = bike2View.y / modelScale;
 
         arenaView.changeSize(arenaWidth, arenaHeight);
 
@@ -149,57 +214,10 @@
     //exit options window
     var exitOptionsButton = optionsView.addButton("done");
     exitOptionsButton.setClickHandler(displayArenaView);
-    //END NEW STUFF.
-    // key handlers
-    document.addEventListener("keydown", keyDownHandler, false);
-    // game timer
-    TIME_PER_FRAME = 20;
-    var game_loop = null; //setInterval(update, TIME_PER_FRAME);
-    // Scale: The number of pixels that make up one "cell" in the model
-    var modelScale = 10;
-    
-    //bike1
-    // setup bikes
-    var bike1 = new Model.BIKE();
-    bike1.startRow = 6; //y
-    bike1.startCol = 6; //x
-    var bike1_color = 0x0000CC;
-    //var bike1_speed = 10;
-    bike1.StartsEast(); // Right
-    var bike1_powerup = false;
-    var bike1_powerupType = "speed up";
-    var bike1_powerupFlash = true;
-    var bike1View = arenaView.addBike(bike1.startCol * modelScale, bike1.startRow * modelScale, bike1_color);
-    //bike2
-    var bike2 = new Model.BIKE();
-    bike2.startCol = 63; //x
-    bike2.startRow = 43; //y
-    var bike2_color = 0xFF9933;
-    //var bike2_speed = 10;
-    bike2.StartsWest(); // Left
-    var bike2_powerup = false;
-    var bike2_powerupType = "break walls";
-    var bike2_powerupFlash = true;
- 
-    var bike2View = arenaView.addBike(bike2.startCol * modelScale, bike2.startRow * modelScale, bike2_color);    
-    //bike2
-    // var bike2 = new Model.BIKE();
-    // bike2.startRow = 630;
-    // bike2.startCol = 430;
-    // var bike2_color = 0xFF9933;
-    // //var bike2_speed = 10;
-    // var bike2_direction = "LEFT";
-    // var bike2_powerup = false;
-    // var bike2_powerupType = "break walls";
-    // var bike2_powerupFlash = true;
-    //bike2View = arenaView.addBike(bike2_x, bike2_y, bike2_color);
-    var count = 3;
-    var coutDownTimer = null;
-    var powerUpTimer = null;
-    var flashInterval1 = 500;
-    var flashTimer1 = null;
-    var flashInterval2 = 500;
-    var flashTimer2 = null;
+
+
+
+
     // animates count down label
     function countDown()
     {
