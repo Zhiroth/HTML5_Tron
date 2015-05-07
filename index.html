@@ -490,18 +490,33 @@
             bikeView.x = bike.col * modelScale;
         }
 
+        // Find the coordinates of the corner the bike turned through (if at all)
+        var cornerX = modelScale * (bike.col - bike.fromColDirection);
+        var cornerY = modelScale * (bike.row - bike.fromRowDirection);
+
         // If the bike wants it's wall drawn this frame
         if(bike.drawWall)
         {
-            // Find the coordinates of the corner the bike turned through (if at all)
-            var cornerX = modelScale * (bike.col - bike.fromColDirection);
-            var cornerY = modelScale * (bike.row - bike.fromRowDirection);
-
             // Draw a wall to that corner
             arenaView.drawWall(bikeView.prevX, bikeView.prevY, cornerX, cornerY, bikeView.color);
 
             // Draw from that corner to it's new progress position.
             arenaView.drawWall(cornerX, cornerY, bikeView.x, bikeView.y, bikeView.color);
+        }
+        else // If we didn't draw the wall, remember the last drawn location
+        {
+            if(cornerX <= 0)
+                cornerX = arenaWidth;
+            else if(cornerX >= arenaWidth)
+                cornerX = 0;
+            
+            if(cornerY <= 0)
+                cornerY = arenaHeight;
+            else if(cornerY >= arenaHeight)
+                cornerY = 0;
+
+            // Draw a wall to that corner
+            arenaView.drawWall(bikeView.prevX, bikeView.prevY, cornerX, cornerY, bikeView.color);
         }
     }
 
