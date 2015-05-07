@@ -655,7 +655,7 @@ var newModel = function(){
 	}
 
 	var CollisionCallback;
-	pub.SetCollisionCallback(func)
+	pub.SetCollisionCallback = function(func)
 	{
 		CollisionCallback = func;
 	}
