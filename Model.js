@@ -66,7 +66,7 @@ var newModel = function(){
 	{
 		type: "Power Up", // Overrides the GameObject type
 		active: false,
-		duration: 250, // 5 seconds if 50 fps
+		duration: 250, // Default 5 second duration if 50 fps
 		ticksLeft: 0,
 		start: function(){},
 		tick: function(){},
@@ -77,8 +77,11 @@ var newModel = function(){
 	pub.PowerUpTypes = {};
 	pub.UsingThesePowerUpTypes = {};
 
-	pub.FrequencyOfPowerUpsOffset = //How long to wait before spawning first powerup
-	pub.FrequencyOfPowerUps = // How many ticksEvery 20 seconds if game running at 50 fps
+	pub.FrequencyOfPowerUpsOffset = 250; //How long to wait before spawning first powerup. (Default 5 sec at 50 fps).
+	pub.FrequencyOfPowerUps = 1000; // How many ticks between power up spawns. (Every 20 seconds if game running at 50 fps)
+
+	// The counter tracking when to spawn in new power ups
+	var powerUpTick = pub.FrequencyOfPowerUps - pub.FrequencyOfPowerUpsOffset;
 
 	pub.PowerUpsOnBoard = [];
 	pub.ActivePowerUps = []; // Array
@@ -107,7 +110,7 @@ var newModel = function(){
 
 /*
 // Called when a power up appears on the board
-function powerUpSpawnCallback(poweruP)
+function powerUpSpawnCallback(powerUp)
 {
 
 }
@@ -139,7 +142,7 @@ Model.SetPowerUpActivateCallback(powerUpActivateCallback);
 
 	pub.RemoveAllPowerUpTypes = function()
 	{
-
+		pub.UsingThesePowerUpTypes = {};
 	}
 
 	pub.SetAllPowerUpDurations = function(ticks)
@@ -182,6 +185,8 @@ Model.SetPowerUpActivateCallback(powerUpActivateCallback);
 		return pu;
 	}
 
+	// By default, have all the power up types in the game
+	pub.AddAllPowerUpTypes();
 		
 	//- - - - - - - - - - - - Game Settings - - - - - - - - - - - - 
 
