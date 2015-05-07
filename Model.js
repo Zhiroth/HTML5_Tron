@@ -9,6 +9,7 @@ var newModel = function(){
 	// var pub = Object.create(GameObject); //This means pub inherits from GameObject
 	var BoardObject =
 	{
+		type: "BoardObject", // Change name to the type of object
 		row: 0, 	// current row position
 		col: 0,		// current column position
 		lastRow: 0,
@@ -21,8 +22,11 @@ var newModel = function(){
 		fromColDirection: null, // The last col direction we moved in
 		solid: false,
 		visible: true,
+		onBoard: true,
+		movedLastFrame: false,
 		hitBy: function(obj){}, // "How will YOU react when hit by said obj? Obj will react to you after this function ends."
-		updateProgress: function(){}
+		hits: function(obj){}, // "How you react to hitting something"
+		update: function(){}
 	}
 
 	// - - - - - Basic Model Variables - - - - - - 
@@ -60,6 +64,7 @@ var newModel = function(){
 	// All properties that are common among power ups and not a Board Object.
 	var PowerUp = 
 	{
+		type: "Power Up", // Overrides the GameObject type
 		active: false,
 		ticksLeft: 0,
 		start: function(){},
@@ -184,7 +189,8 @@ var newModel = function(){
 	var grid;
 	var updateGrid;
 
-	var Wall = {hitBy:function(){}, solid: true};
+	var Wall = {type: "Wall", hitBy:function(){}, solid: true};
+	var EmptyCell = {type: ""}
 
 	var isOutside = function(gameObj)
 	{
@@ -193,15 +199,17 @@ var newModel = function(){
 
 	var wrap = function(gameObj)
 	{
-		//TODO wrap function
-		console.log("Wrapping...");
+		
+		return true;
 	}
 	var noWrap = function(gameObj)
 	{
 		if(isOutside(gameObj))
 		{
 			gameObj.die();
+			return false;
 		}
+		return true;
 	}
 
 	var isWrapAllowed = function()
@@ -237,8 +245,8 @@ var newModel = function(){
 					updateGrid[i] = [];
 				}
 				// Fill the cell with empty inhabited arrays
-				grid[i][j] = {};
-				updateGrid[i][j] = {};
+				grid[i][j] = EmptyCell;
+				updateGrid[i][j] = EmptyCell;
 				/*
 				grid[i][j] = {
 					solids: []
@@ -257,6 +265,10 @@ var newModel = function(){
 	/// The class that holds information about a specific bike
 	pub.BIKE = function()
 	{
+		this.type = "Bike";
+		this.onBoard = true;
+		this.solid = true;
+		this.movedLastFrame = false;
 		this.startRow = null;
 		this.startCol = null;
 		this.startRowDirection = null;
@@ -273,6 +285,22 @@ var newModel = function(){
 		this.fromRowDirection = null;
 		this.fromColDirection = null;
 		this.drawWall = true;
+
+		this.hits = function(obj)
+		{
+			if(obj.solid)
+			{
+				// set the progress to determine how far into the object the bike appears (0-threshhold)
+				this.progress = pub.crashImpactPercent * threashhold;
+				this.die();
+			}
+		}
+
+		this.hitBy = function(obj)
+		{
+			if(obj.solid)
+				this.die();
+		}
 
 		// Note: The methods dealing with the bike life are written so that the Model.getLiveBikes() is fast.
 		//   While we <i> could </i> also keep track of whether or not this bike is alive I don't want to have
@@ -303,9 +331,7 @@ var newModel = function(){
 
 		this.die = function()
 		{
-			// set the progress to determine how far into the object the bike appears (0-threshhold)
-			this.progress = pub.crashImpactPercent * threashhold;
-
+			this.onBoard = false;
 			// look for bike in alive array
 			for(var i=0;i<liveBikes.length;i++)
 				// If we found the bike
@@ -315,6 +341,7 @@ var newModel = function(){
 					break;
 				}
 
+			ReportCollision(this.row, this.col);
 		}
 	
 
@@ -379,6 +406,13 @@ var newModel = function(){
 		{
 			this.speed = this.speed += 10;
 			//this.drawWall = false;
+		}
+
+		this.update = function()
+		{
+			// If the bike has no direction then don't move it
+			if(this.rowDirection != 0 || this.colDirection != 0 )
+				this.progress += this.speed; // Update the bike's progress
 		}
 
 		this.extra= {};  // Holds any kind of data you want, I won’t use it in the Model.
@@ -446,6 +480,7 @@ var newModel = function(){
 		for(var i=0; i<bikes.length;i++)
 		{
 			var b = bikes[i];
+
 			// Make sure all the bikes are alive
 			b.revive();
 			// Reset the position and 
@@ -488,39 +523,66 @@ var newModel = function(){
 	/// Tells the model to do one round of updates
 	pub.UpdateObjects = function()
 	{
-		// Move all objects
+		// Update all Game objects
 		for(var i in liveBikes)
 		{
 			var b = liveBikes[i];
 
-			UpdateGameObjectProgress(b);
+			b.update();
 		}
 
+		// Loop through all the objects and check for movement
 		for(var i in liveBikes)
 		{
 			var b = liveBikes[i];
-
 			StartUpdateGOPosition(b);
-			
 		}
 
-		// Finished moving all objects
-		// Switch the grids
-		var temp = grid;
-		grid = updateGrid;
-		updateGrid = temp;
+		// Loop through all surviving objects and move to offical grid
+		for(var i in liveBikes)
+		{
+			var b = liveBikes[i];
+			EndUpdateGOPosition(b);
+		}
+
+
 	}
 
-	var UpdateGameObjectProgress = function(go)
+	var doCollision = function(objA, onGrid)
 	{
-		// If the bike has no direction then don't move it
-		if(go.rowDirection != 0 || go.colDirection != 0 )
-			go.progress += go.speed; // Update the bike's progress
+		var objB = onGrid[objA.row][objA.col];
+
+		if(objB != EmptyCell) // If there's not an empty cell, process collisions (if any)
+		{
+			// Let the target know there was a collision with said object
+			if(objB.hasOwnProperty('hitBy'))
+				objB.hitBy(objA);
+
+			// let the
+			if(objA.hasOwnProperty('hits'))
+				objA.hits(objB);
+
+			// If the object should still be on the board after the interactions then place it
+			if(objA.onBoard)
+			{
+				// Mark that we are now on the 
+				objA.movedLastFrame = true;
+				// Save our spot on the grid
+				onGrid[objA.row][objA.col] = objA;
+			}
+		}
+		else
+		{
+			// Mark that we've successfully moved into a new position
+			objA.movedLastFrame = true;
+			// Move it
+			onGrid[objA.row][objA.col] = objA;
+		}
 	}
 
-	var StartUpdateGOPosition = function(b, board)
+	var StartUpdateGOPosition = function(b)
 	{
-		var moved = false;
+		b.movedLastFrame = false;
 
 		// If the bike has made enough progress to move
 		if(b.progress >= threashhold)
@@ -536,6 +598,8 @@ var newModel = function(){
 			// Place a wall on the previous position. It may trigger 
 			if(b.hasOwnProperty('drawWall') && b.drawWall)
 				grid[b.row][b.col] = Wall;
+			else
+				grid[b.row][b.col] = EmptyCell;
 			// updateGrid[b.row][b.col] = Wall; //TODO this is just a patch to fix the enemy dies when their wall is hit
 
 			// Move the bike to its new location
@@ -546,36 +610,33 @@ var newModel = function(){
 			// Returns true if the bike didn't die from being out of bounds
 			if(processOutsideBounds(b))
 			{
-				var ug = updateGrid[b.row][b.col];
-
-				if(updateGrid[b.row][b.col].hasOwnProperty('hitBy')) // Check new spot of bike
-				{
-					// Let the object know there was a collision with said object
-					updateGrid[b.row][b.col].hitBy(b);
-
-					// If the object is solid, the bike dies
-					if(updateGrid[b.row][b.col].solid)
-						b.die();
-
-					//TODO report crash	
-
-				}
-				else
-				{
-					// Move it
-					updateGrid[b.row][b.col] = b;
-				}
+				doCollision(b, updateGrid);
 
 			} //else the object ran out of bounds and died
 
 		} // end threshhold check
 	}
 
+	var EndUpdateGOPosition = function(obj)
+	{
+		if(obj.movedLastFrame && obj.onBoard)
+		{
+			doCollision(obj, grid);
+			updateGrid[obj.row][obj.col] = EmptyCell;
+		}
+	}
+
+	var collisions = [];
+	var ReportCollision = function(row, col)
+	{
+		collisions[collisions.length] = [row, col];
+	}
+
 	/// Grabs a list of collisions that happened on the last UpdateObjects
 	pub.GetCollisions = function()
 	{
-
 		// returns array of (row, column) pairs indicating collision positions
+		return collisions;
 	}
 
 
