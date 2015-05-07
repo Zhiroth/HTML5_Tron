@@ -350,7 +350,8 @@ function Arena(width, height)
         clearWalls();
         _tronLabel.visible = false
         _countdownLabel.visible = false;
-        _orangeBikeImg.visible = true;
+        _blueBikeImg.visible = true;
+        _orangeBikeImg.visible = false;
         
         clearPowerups();
         
@@ -365,7 +366,8 @@ function Arena(width, height)
         clearWalls();
         _tronLabel.visible = false
         _countdownLabel.visible = false;
-        _blueBikeImg.visible = true;
+        _blueBikeImg.visible = false;
+        _orangeBikeImg.visible = true;
         
         clearPowerups();
         
