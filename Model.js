@@ -224,8 +224,6 @@ Model.SetPowerUpActivateCallback(powerUpActivateCallback);
 			PU_Type = pub.UsingThesePowerUpTypes[index];
 		}
 
-		// Create the new powerup
-		var pu = pub.NewPowerUp(PU_Type);
 
 
 
@@ -239,7 +237,9 @@ Model.SetPowerUpActivateCallback(powerUpActivateCallback);
 			var b = liveBikes[i];
 			if(b.powerUp == null)
 			{
-				alert("Powerup!");
+				// Create the new powerup
+				var pu = pub.NewPowerUp(PU_Type);
+				
 				// Give b a random powr up
 				b.powerUp = pu;
 				pu.bike = b;
