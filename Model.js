@@ -360,7 +360,7 @@ var newModel = function(){
 					break;
 				}
 
-			ReportCollision(this.row, this.col);
+			ReportCollision(this.row, this.col, this);
 		}
 	
 
@@ -661,9 +661,9 @@ var newModel = function(){
 	}
 
 	var collisions = [];
-	var ReportCollision = function(row, col)
+	var ReportCollision = function(bike, row, col)
 	{
-		CollisionCallback(row,col);
+		CollisionCallback(row, col, bike);
 		collisions[collisions.length] = [row, col]; // CLEANUP: Not needed with the callback, but leave it for now
 	}
 
