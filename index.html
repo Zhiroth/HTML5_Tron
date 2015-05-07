@@ -44,6 +44,17 @@
 
 
 
+    var victoryScreenTimer;
+    var collisionAnimationTimer;
+
+    var flashInterval1 = 500;
+    var flashTimer1 = null;
+    var flashInterval2 = 500;
+    var flashTimer2 = null;
+
+
+    var coutDownTimer = null;
+    var powerUpTimer = null;
 
     
 
@@ -61,16 +72,6 @@
     //access the options screen
     var optionsView = tronView.getMenuScreen();
     
-    //display the various screens (these all appear on the arena view):
-    //arenaView.displayVictoryBlue(); //hides everything but a blue player victory image
-    //arenaView.displayVictoryOrange(); //hides everything but an orange player victory image
-    //arenaView.displayMainScreen(); //initial screen (shows the "tron" label and play/options buttons)
-    
-    //display the initial countdown view and decrement the countdown
-    //arenaView.displayCountdown(); //display this after user selects "play" button; displays the bikes and sets countdown display to "3"
-    //arenaView.changeCountdownLabelText("2");
-    //arenaView.changeCountdownLabelText("1");
-    //arenaView.hideCountdownLabel();
 
     var deadPlayer;
 
@@ -87,15 +88,39 @@
     Model.SetCollisionCallback(collisionCallback);
 
 
+    // Called when a power up is picked up by the given player
+    function powerUpPickUpCallback(bike)
+    {
+        var powerupName = bike.powerUp.name;
 
-    var flashInterval1 = 500;
-    var flashTimer1 = null;
-    var flashInterval2 = 500;
-    var flashTimer2 = null;
+        if(bike == bike1)
+        {
+            puh1View.changeText(powerupName);
+            player1PowerupName = powerupName;
+        }
+        else
+        {
+            puh2View.changeText(powerupName);
+            player2PowerupName = powerupName;
+        }
 
+    }
+    Model.SetPowerUpPickUpCallback(powerUpPickUpCallback);
 
-    var coutDownTimer = null;
-    var powerUpTimer = null;
+    // Called when a power up is activated by the given player
+    function powerUpActivateCallback(bike)
+    {
+        if(bike == bike1) player1PowerupActive = true;
+        else player2PowerupActive = true;
+    }
+    Model.SetPowerUpActivateCallback(powerUpActivateCallback);
+
+    var player1PowerupActive = false;
+    var player2PowerupActive = false;
+
+    var player1PowerupName = "";
+    var player2PowerupName = "";
+
 
 
     // setup bikes
@@ -380,28 +405,8 @@
 
         Model.SetBoardRows(arenaHeight/modelScale);
         Model.SetBoardColumns(arenaWidth/modelScale);
-        
-        // setup arena size
-        // arenaWidth
-        // arenaHeight
-        // setup mode
-        // get speeds
-        // get positions
-
-
 
         Model.StartGame();
-
-        /*
-        //FOR TESTING ONLY
-        setTimeout(function() { 
-            clearInterval(game_loop);
-            count = 3;
-            arenaView.displayVictoryBlue(); 
-            resetBikeViewPositions();
-        }, 5000);
-        victoryScreenTimer = setTimeout(returnToMainScreen, 8000);
-        */
     }
 
     
@@ -419,7 +424,7 @@
         //display appropriate victory screen for a moment, and then return to main screen
         if (deadPlayer == 1) arenaView.displayVictoryOrange();
         else arenaView.displayVictoryBlue(); 
-        victoryScreenTimer = setTimeout(returnToMainScreen, 1000);
+        victoryScreenTimer = setTimeout(returnToMainScreen, 4000);
     }
 
 
@@ -439,17 +444,12 @@
     }
     
 
-
     //begin animation loop
     requestAnimFrame(animate);
 
     //run animation loop
     function animate()
     {
-        //DO OTHER CONTROLLER STUFF HERE  
-        
-
-     
         requestAnimFrame(animate);
         view_renderer.render(view_stage);     // render the stage
     }
@@ -531,15 +531,6 @@
     }
 
 
-    var victoryScreenTimer;
-
-
-    var collisionAnimationTimer;
-
-    
-   
-
-
     //moves the bikes based on last direction
     function update()
     {
@@ -550,17 +541,6 @@
 
 
         
-        //if collision not empty (getGollisions returns an array)
-        //show collision in view
-        // GetLiveBikes();
-        //determine winner and display appropirate screen
-        //arenaView.displayVictoryBlue();
-        //arenaView.displayVictoryOrange();
-        //stop the animation
-
-        //victoryScreenTimer = setTimeout(returnToMainScreen, 3000);
-
-        
         //if a collision has occurred, the game is over
         if(collision1View)
         {
@@ -568,26 +548,30 @@
             return;
         }
 
-        /*
-        //collision animation
-        if (collision1View && collision1View.radius > 0)
-        {
-            collision1View.radius += 4;
-            if (collision1View.radius >= 80) collision1View.radius = 0;
-            //we can't simply change the radius (apparently), the object has to be redrawn to reflect the adjusted radius
-            //redraw is a method I wrote, it's not built into the api
-            collision1View.redraw();
-        }
-        */
         
-
-        //
-        var powerups = Model.PowerUpsOnBoard; //array
-        for (var i = 0; i < powerups.length; i++)
+        //display time left on activated power ups
+        if(player1PowerupActive)
         {
-            //var pu = powerups[i];
-            //arenaView.addPowerup(pu.col, pu.row, pu.color);
-           
+           var timeLeft = bike1.powerUp.ticksLeft / framesPerSecond;
+           if (timeLeft <= 0)
+           {
+               puh1View.changeText("");
+               player1PowerupName = "";
+               player1PowerupActive = false;
+           }
+           else puh1View.changeText(player1PowerupName + " " + timeLeft);
+        }
+
+        if(player2PowerupActive)
+        {
+           var timeLeft = bike2.powerUp.ticksLeft / framesPerSecond;
+           if (timeLeft <= 0)
+           {
+               puh2View.changeText("");
+               player2PowerupName = "";
+               player2PowerupActive = false;
+           }
+           else puh2View.changeText(player2PowerupName + " " + timeLeft);
         }
 
 
