@@ -116,6 +116,19 @@
     var bike2View = arenaView.addBike(bike2.startCol * modelScale, bike2.startRow * modelScale, bike2_color);    
 
 
+    function resetBikeViewPositions()
+    {
+        bike1View.x = 60;
+        bike1View.y = 60;
+        bike1.startRow = 6; //y
+        bike1.startCol = 6; //x
+
+        bike2View.x = arenaWidth - 70;
+        bike2View.y = arenaHeight - 70;
+        bike2.startCol = bike2View.x / modelScale;
+        bike2.startRow = bike2View.y / modelScale;
+    }
+
 
 
 
@@ -184,10 +197,14 @@
         }
 
         //keep bike positions in the cornerns
+        /*
         bike2View.x = arenaWidth - 70;
         bike2View.y = arenaHeight - 70;
         bike2.startCol = bike2View.x / modelScale;
         bike2.startRow = bike2View.y / modelScale;
+        */
+
+        resetBikeViewPositions();
 
 
         arenaView.changeSize(arenaWidth, arenaHeight);
@@ -365,6 +382,7 @@
             clearInterval(game_loop);
             count = 3;
             arenaView.displayVictoryBlue(); 
+            resetBikeViewPositions();
         }, 5000);
         victoryScreenTimer = setTimeout(returnToMainScreen, 8000);
     }
