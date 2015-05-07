@@ -18,8 +18,8 @@ var newModel = function(){
 		colDirection: 0,	// current column direction
 		speed: 0, 		// current speed of bike.
 		progress: 0,		// how much progress it's made towards moving to the next square
-		fromRowDirection: null, // The last row direction we moved in
-		fromColDirection: null, // The last col direction we moved in
+		fromRowDirection: 0, // The last row direction we moved in
+		fromColDirection: 0, // The last col direction we moved in
 		solid: false,
 		visible: true,
 		onBoard: true,
@@ -75,6 +75,9 @@ var newModel = function(){
 
 	pub.PowerUpTypes = {};
 	pub.UsingThesePowerUpTypes = {};
+
+	//pub.FrequencyOfPowerUps = 
+
 	pub.PowerUpsOnBoard = [];
 	pub.ActivePowerUps = []; // Array
 
@@ -290,6 +293,8 @@ var newModel = function(){
 		this.fromRowDirection = null;
 		this.fromColDirection = null;
 		this.drawWall = true;
+
+		this.powerUp = null;
 
 		this.hits = function(obj)
 		{
@@ -520,6 +525,9 @@ var newModel = function(){
 
 			b.prevRow = b.row;
 			b.prevCol = b.col;
+
+			b.fromRowDirection = 0;
+			b.fromColDirection = 0;
 
 			if(b.row >= defaultBoardRows || b.col >= defaultBoardCols || b.row < 0 || b.col < 0)
 				throw new Error("Cannot start bike outside of board.");
