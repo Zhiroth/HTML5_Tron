@@ -41,6 +41,10 @@
     var game_loop = null; //setInterval(update, TIME_PER_FRAME);
     // Scale: The number of pixels that make up one "cell" in the model
     var modelScale = 10;
+
+
+
+
     
 
     //default to medium arena
@@ -68,8 +72,19 @@
     //arenaView.changeCountdownLabelText("1");
     //arenaView.hideCountdownLabel();
 
+    var deadPlayer;
 
+    function collisionCallback(row, col, bike)
+    {
+        collision1View = arenaView.addCollision(col * modelScale, row * modelScale);
 
+        if(bike == bike1) deadPlayer = 1;
+        else deadPlayer = 2;
+
+        console.log("collision reported by model with args: " + row + " " + col);
+    }
+
+    Model.SetCollisionCallback(collisionCallback);
 
 
 
@@ -377,6 +392,7 @@
 
         Model.StartGame();
 
+        /*
         //FOR TESTING ONLY
         setTimeout(function() { 
             clearInterval(game_loop);
@@ -385,7 +401,43 @@
             resetBikeViewPositions();
         }, 5000);
         victoryScreenTimer = setTimeout(returnToMainScreen, 8000);
+        */
     }
+
+    
+    function endGame()
+    {
+        clearInterval(game_loop);
+
+        //animate the collision
+        collisionAnimationTimer = setInterval(animateCollision, 20);
+
+    }
+
+    function displayVictory()
+    {
+        //display appropriate victory screen for a moment, and then return to main screen
+        if (deadPlayer == 1) arenaView.displayVictoryOrange();
+        else arenaView.displayVictoryBlue(); 
+        victoryScreenTimer = setTimeout(returnToMainScreen, 4000);
+    }
+
+
+    function animateCollision()
+    {
+
+        collision1View.radius += 4;
+        collision1View.redraw();
+        if (collision1View.radius >= 80) 
+        {
+            collision1View.radius = 0;
+            collision1View.redraw();
+            clearInterval(collisionAnimationTimer);
+            displayVictory();
+        }
+        
+    }
+    
 
 
     //begin animation loop
@@ -457,10 +509,20 @@
     function returnToMainScreen()
     {
         arenaView.displayMainScreen();
+
+        resetBikeViewPositions();
+        collision1View = null;
+        count = 3;
     }
 
 
     var victoryScreenTimer;
+
+
+    var collisionAnimationTimer;
+
+    
+   
 
 
     //moves the bikes based on last direction
@@ -471,8 +533,7 @@
 
         Model.UpdateObjects();
 
-        //TODO
-        //Model.GetCollisions(); //NOT YET IMPLEMENTED
+
         
         //if collision not empty (getGollisions returns an array)
         //show collision in view
@@ -483,6 +544,14 @@
         //stop the animation
 
         //victoryScreenTimer = setTimeout(returnToMainScreen, 3000);
+
+        
+        //if a collision has occurred, the game is over
+        if(collision1View)
+        {
+            endGame();
+            return;
+        }
 
         /*
         //collision animation
@@ -495,8 +564,19 @@
             collision1View.redraw();
         }
         */
+        
+
+        //
+        var powerups = Model.PowerUpsOnBoard; //array
+        for (var i = 0; i < powerups.length; i++)
+        {
+            //var pu = powerups[i];
+            //arenaView.addPowerup(pu.col, pu.row, pu.color);
+           
+        }
 
 
+        
 
 
         drawBike(bike1, bike1View);

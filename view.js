@@ -567,7 +567,7 @@ function Arena(width, height)
     //create, draw, and return a new collision object
     this.addCollision=function(x, y)
     {
-        collision = new Collision(x, y);  
+        var collision = new Collision(x, y);  
         this.addChild(collision);
 
         return collision;
