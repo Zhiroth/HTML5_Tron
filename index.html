@@ -11,7 +11,6 @@
     <script src="pixi.dev.js"></script>  <!-- 2 - Pixi -->
     <script src="hammer.js"></script>  <!-- 3 - Hammer -->
 
-    <script src="loader.js"></script>
 
     <script src="view.js"></script>
 
@@ -32,13 +31,24 @@
   </div>
 
 <script>
+
+
+    // key handlers
+    document.addEventListener("keydown", keyDownHandler, false);
+    // game timer
+    var TIME_PER_FRAME = 20;
+    var framesPerSecond = 1000 / TIME_PER_FRAME;
+    var game_loop = null; //setInterval(update, TIME_PER_FRAME);
+    // Scale: The number of pixels that make up one "cell" in the model
+    var modelScale = 10;
+    
+
     //default to medium arena
     var arenaWidth = 700;
     var arenaHeight = 500;
+
     
-    //assign the bike objects to variables so we can move them around after they are initially created/drawn (unlike walls, which can be drawn and left where they are)
-    //var bike1View;
-    //var bike2View;
+
     var collision1View;
     var tronView = new TronView(arenaWidth, arenaHeight);
     var arenaView = tronView.getArena();
@@ -59,14 +69,9 @@
     //arenaView.hideCountdownLabel();
 
 
-    // key handlers
-    document.addEventListener("keydown", keyDownHandler, false);
-    // game timer
-    TIME_PER_FRAME = 20;
-    var game_loop = null; //setInterval(update, TIME_PER_FRAME);
-    // Scale: The number of pixels that make up one "cell" in the model
-    var modelScale = 10;
-    
+
+
+
 
     var flashInterval1 = 500;
     var flashTimer1 = null;
@@ -74,46 +79,47 @@
     var flashTimer2 = null;
 
 
-    //bike1
-    // setup bikes
-    var bike1 = new Model.BIKE();
-    bike1.startRow = 6; //y
-    bike1.startCol = 6; //x
-    var bike1_color = 0x0000CC;
-    //var bike1_speed = 10;
-    bike1.StartsEast(); // Right
-    var bike1_powerup = false;
-    var bike1_powerupType = "speed up";
-    var bike1_powerupFlash = true;
-    var bike1View = arenaView.addBike(bike1.startCol * modelScale, bike1.startRow * modelScale, bike1_color);
-    //bike2
-    var bike2 = new Model.BIKE();
-    bike2.startCol = 63; //x
-    bike2.startRow = 43; //y
-    var bike2_color = 0xFF9933;
-    //var bike2_speed = 10;
-    bike2.StartsWest(); // Left
-    var bike2_powerup = false;
-    var bike2_powerupType = "break walls";
-    var bike2_powerupFlash = true;
- 
-    var bike2View = arenaView.addBike(bike2.startCol * modelScale, bike2.startRow * modelScale, bike2_color);    
-    //bike2
-    // var bike2 = new Model.BIKE();
-    // bike2.startRow = 630;
-    // bike2.startCol = 430;
-    // var bike2_color = 0xFF9933;
-    // //var bike2_speed = 10;
-    // var bike2_direction = "LEFT";
-    // var bike2_powerup = false;
-    // var bike2_powerupType = "break walls";
-    // var bike2_powerupFlash = true;
-    //bike2View = arenaView.addBike(bike2_x, bike2_y, bike2_color);
-    var count = 3;
     var coutDownTimer = null;
     var powerUpTimer = null;
 
 
+    // setup bikes
+
+    //bike1
+    var bike1 = new Model.BIKE();
+    Model.AddBike(bike1);
+
+    bike1.startRow = 6; //y
+    bike1.startCol = 6; //x
+    var bike1_color = 0x0000CC;
+    bike1.StartsEast(); // Right
+
+    var bike1_powerup = false;
+    var bike1_powerupType = "";
+    var bike1_powerupFlash = true;
+
+    var bike1View = arenaView.addBike(bike1.startCol * modelScale, bike1.startRow * modelScale, bike1_color);
+    
+    //bike2
+    var bike2 = new Model.BIKE();
+    Model.AddBike(bike2);
+
+    bike2.startCol = 63; //x
+    bike2.startRow = 43; //y
+    var bike2_color = 0xFF9933;
+    bike2.StartsWest(); // Left
+
+    var bike2_powerup = false;
+    var bike2_powerupType = "";
+    var bike2_powerupFlash = true;
+ 
+    var bike2View = arenaView.addBike(bike2.startCol * modelScale, bike2.startRow * modelScale, bike2_color);    
+
+
+
+
+
+    //main screen buttons
 
     var playButton = arenaView.getPlayButton();
     playButton.setClickHandler(function() { countDown(); } );
@@ -136,6 +142,8 @@
         optionsView.visible = false;
     }
     
+
+
     //put text in power-up holders
     var puh1View = tronView.getPowerUpHolder1();
     var puh2View = tronView.getPowerUpHolder2();
@@ -143,7 +151,13 @@
     //puh1View.changeText("test");
     //puh2View.changeText("testing");
 
-    //add buttons to options menu and set click handlers
+
+
+
+
+
+    //add buttons to options screen and set click handlers
+
     var toggleArenaSizeButton = optionsView.addButton("arena size: medium"); //args: x, y, width, height, text
     toggleArenaSizeButton.setClickHandler(toggleArenaSize);
     var arenaSizeText = "medium";
@@ -174,6 +188,7 @@
         bike2View.y = arenaHeight - 70;
         bike2.startCol = bike2View.x / modelScale;
         bike2.startRow = bike2View.y / modelScale;
+
 
         arenaView.changeSize(arenaWidth, arenaHeight);
 
@@ -218,7 +233,7 @@
     arenaWrapButton.setClickHandler(toggleArenaWrap); 
     var arenaWrapText = "no";
 
-    //BOARD WRAP NOT YET IMPLEMENTED IN MODEL
+    //TODO: BOARD WRAP NOT YET IMPLEMENTED IN MODEL
     function toggleArenaWrap()
     {
         if(arenaWrapText == "no")
@@ -245,12 +260,12 @@
         if(enablePowerupsText == "yes")
         { 
             enablePowerupsText = "no";
-            //update model
+            Model.RemoveAllPowerUpTypes();
         }
         else
         {
             enablePowerupsText = "yes";
-            //update model
+            Model.AddAllPowerUpTypes();
         }
 
         enablePowerupsButton.changeText("power ups enabled: " + enablePowerupsText);
@@ -260,25 +275,34 @@
 
     var powerupDurationButton = optionsView.addButton("power up duration: moderate");
     powerupDurationButton.setClickHandler(togglePowerupDuration);
+    
+    //set default to moderate
     var powerupDurationText = "moderate";
+    Model.SetAllPowerUpDurations(framesPerSecond * 4); 
+    var powerupDurationInSeconds = 4;
 
     function togglePowerupDuration()
     {
+
+
+
         if(powerupDurationText == "short")
         {
             powerupDurationText = "moderate";
-            //update model
+            powerupDurationInSeconds = 4;
         }
         else if(powerupDurationText == "moderate") 
         {
             powerupDurationText = "long";
-            //update model
+            powerupDurationInSeconds = 6;
         }
         else 
         {
             powerupDurationText = "short";
-            //update model
+            powerupDurationInSeconds = 2; 
         }
+
+        Model.SetAllPowerUpDurations(framesPerSecond * powerupDurationInSeconds); 
 
 
         powerupDurationButton.changeText("power up duration: " + powerupDurationText);
@@ -292,6 +316,7 @@
 
 
 
+    var count = 3;
 
     // animates count down label
     function countDown()
@@ -312,51 +337,64 @@
         }
         count--;
     }
+
+
+
     // sets up game
     function setup()
     {
+
         game_loop = setInterval(update, TIME_PER_FRAME);
+
         Model.SetBoardRows(arenaHeight/modelScale);
         Model.SetBoardColumns(arenaWidth/modelScale);
+        
         // setup arena size
         // arenaWidth
         // arenaHeight
         // setup mode
         // get speeds
         // get positions
-        Model.AddBike(bike1);
-        Model.AddBike(bike2);
+
+
+
         Model.StartGame();
+
+        //FOR TESTING ONLY
+        setTimeout(function() { 
+            clearInterval(game_loop);
+            count = 3;
+            arenaView.displayVictoryBlue(); 
+        }, 5000);
+        victoryScreenTimer = setTimeout(returnToMainScreen, 8000);
     }
+
+
     //begin animation loop
     requestAnimFrame(animate);
+
     //run animation loop
     function animate()
     {
         //DO OTHER CONTROLLER STUFF HERE  
         
-        //collision animation
-        if (collision1View && collision1View.radius > 0)
-        {
-            collision1View.radius += 4;
-            if (collision1View.radius >= 80) collision1View.radius = 0;
-            //we can't simply change the radius (apparently), the object has to be redrawn to reflect the adjusted radius
-            //redraw is a method I wrote, it's not built into the api
-            collision1View.redraw();
-        }
+
      
         requestAnimFrame(animate);
         view_renderer.render(view_stage);     // render the stage
     }
+
     function saveBikeViewPos(bikeView)
     {
         bikeView.prevX = bikeView.x;
         bikeView.prevY = bikeView.y;
     }
+
     function drawBike(bike, bikeView)
     {  
         // Calculate how "far" the bike is from moving to the next cell
         var percentProg = 1 - bike.progress/Model.GetProgressThreshhold();
+
         if (bike.fromRowDirection == 1) //up
         {
             bikeView.y = parseInt(modelScale * (bike.row - percentProg));
@@ -381,36 +419,84 @@
         {
             bikeView.x = bike.col * modelScale;
         }
+
         // If the bike wants it's wall drawn this frame
         if(bike.drawWall)
         {
             // Find the coordinates of the corner the bike turned through (if at all)
             var cornerX = modelScale * (bike.col - bike.fromColDirection);
             var cornerY = modelScale * (bike.row - bike.fromRowDirection);
+
             // Draw a wall to that corner
             arenaView.drawWall(bikeView.prevX, bikeView.prevY, cornerX, cornerY, bikeView.color);
+
             // Draw from that corner to it's new progress position.
             arenaView.drawWall(cornerX, cornerY, bikeView.x, bikeView.y, bikeView.color);
         }
     }
+
+
+    function returnToMainScreen()
+    {
+        arenaView.displayMainScreen();
+    }
+
+
+    var victoryScreenTimer;
+
+
     //moves the bikes based on last direction
     function update()
     {
         saveBikeViewPos(bike1View);
         saveBikeViewPos(bike2View);
+
         Model.UpdateObjects();
+
+        //TODO
+        //Model.GetCollisions(); //NOT YET IMPLEMENTED
+        
+        //if collision not empty (getGollisions returns an array)
+        //show collision in view
+        // GetLiveBikes();
+        //determine winner and display appropirate screen
+        //arenaView.displayVictoryBlue();
+        //arenaView.displayVictoryOrange();
+        //stop the animation
+
+        //victoryScreenTimer = setTimeout(returnToMainScreen, 3000);
+
+        /*
+        //collision animation
+        if (collision1View && collision1View.radius > 0)
+        {
+            collision1View.radius += 4;
+            if (collision1View.radius >= 80) collision1View.radius = 0;
+            //we can't simply change the radius (apparently), the object has to be redrawn to reflect the adjusted radius
+            //redraw is a method I wrote, it's not built into the api
+            collision1View.redraw();
+        }
+        */
+
+
+
+
         drawBike(bike1, bike1View);
         drawBike(bike2, bike2View);
+
         // bike 1 power up
         if (bike1_powerup)
         {
+            //power up is already activated in the model
+
             bike1_powerup = false;
-            puh1View.changeText("");
+            puh1View.changeText("boo");
             bike1_powerupFlash = false;
-            flashInterval1 = 1000;
+            flashInterval1 = powerupDurationInSeconds * 1000;
             flashTimer1 = setTimeout(function() { powerUpFlash(1); }, flashInterval1);
         }
     }
+
     function powerUpFlash(player)
     {
         // clearTimeout(flashTimer);
@@ -436,6 +522,7 @@
                 puh1View.changeText("");
             }
         }
+
         if (player == 2)
         {
             if (bike2_powerupFlash == false)
@@ -459,11 +546,15 @@
             }
         }
     }
+
+
     var DebuggingMode = false;
     // catches key down events
     function keyDownHandler(event)
     {
         var keyPressed = String.fromCharCode(event.keyCode);
+
+        //TODO: DISABLE THIS BEFORE SUBMISSION
         if(keyPressed == "U") //Debug Mode!
         {
             if(DebuggingMode)
@@ -488,6 +579,7 @@
             bike1_powerup = true;
             bike1.Activate();   
         }
+
         //for bike2 ijkl
         if (keyPressed == "I")
             bike2.TurnsNorth();
@@ -503,49 +595,7 @@
             bike2.Activate();
         }
     }
-    //move bike1 up(w), left(a), down(s), right(d)
-    //move bike2 up(i), left(j), down(k), right(l)
-    //keydown and keypress events fire repeatedly while a key is pressed, but keyup events only fire on a keyup
-    // $(document).keyup(function(e){
-    //     var key = e.which;
-    //     console.log("key: " + key);
-    //     //for bike1
-    //     if (key == 87)      bike1_y -= bike1_speed;  //w
-    //     else if (key == 65) bike1_x -= bike1_speed;  //a
-    //     else if (key == 83) bike1_y += bike1_speed;  //s
-    //     else if (key == 68) bike1_x += bike1_speed;  //d
-    //     //keep bike in the arena
-    //     if (bike1_x >= arenaWidth) bike1_x = arenaWidth - bike1_speed;
-    //     if (bike1_x < 0) bike1_x = 0;
-    //     if (bike1_y >= arenaHeight) bike1_y = arenaHeight - bike1_speed;
-    //     if (bike1_y < 0) bike1_y = 0;
-    //     //draw wall behind bike
-    //     arenaView.drawWall(bike1View.x, bike1View.y, bike1_x, bike1_y, bike1_color);
-    //     //move the bike
-    //     bike1View.x = bike1_x;
-    //     bike1View.y = bike1_y;
-    //     //for bike2
-    //     if (key == 73)      bike2_y -= bike2_speed;  //i
-    //     else if (key == 74) bike2_x -= bike2_speed;  //j
-    //     else if (key == 75) bike2_y += bike2_speed;  //k
-    //     else if (key == 76) bike2_x += bike2_speed;  //l
-    //     //keep bike in the arena
-    //     if (bike2_x >= arenaWidth) bike2_x = arenaWidth - bike2_speed;
-    //     if (bike2_x < 0) bike2_x = 0;
-    //     if (bike2_y >= arenaHeight) bike2_y = arenaHeight - bike2_speed;
-    //     if (bike2_y < 0) bike2_y = 0;
-    //     //draw wall behind bike
-    //     arenaView.drawWall(bike2View.x, bike2View.y, bike2_x, bike2_y, bike2_color);
-    //     //move the bike
-    //     bike2View.x = bike2_x;
-    //     bike2View.y = bike2_y;
-    //     //draw collision when bikes hit eachother
-    //     if (bike1View.x == bike2View.x && bike1View.y == bike2View.y)
-    //     {
-    //         collision1View = arenaView.addCollision(bike1View.x, bike1View.y);
-    //         collision1View.radius++;
-    //     }
-    // });
+
 </script>
 
 </body>

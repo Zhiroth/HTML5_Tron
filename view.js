@@ -338,6 +338,7 @@ function Arena(width, height)
     var clearWalls=function()
     {
         displaySelf();
+        console.log("walls cleared automaticlly");
     }.bind(this);
 
     this.displayVictoryBlue=function()
@@ -376,22 +377,24 @@ function Arena(width, height)
         showBikes();
         clearWalls();
         _tronLabel.visible = false;
-        _blueBikeImg.visible = false;
         _countdownLabel.visible = true;
+        _blueBikeImg.visible = false;
         _orangeBikeImg.visible = false;
 
         _countdownLabel.setText("3");
+
+        console.log("displayCountdown()");
 
     }.bind(this);
 
     this.displayMainScreen=function()
     {
-        hideButtons();
+        showButtons();
         hideBikes();
         clearWalls();
-        _tronLabel.visible = false;
+        _tronLabel.visible = true;
+        _countdownLabel.visible = false;
         _blueBikeImg.visible = false;
-        _countdownLabel.visible = true;
         _orangeBikeImg.visible = false;
         
         clearPowerups();
