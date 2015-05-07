@@ -225,8 +225,6 @@ Model.SetPowerUpActivateCallback(powerUpActivateCallback);
 		}
 
 
-
-
 		//todo add power ups to the board rather than the players directly
 		// Add to the game
 		//PowerUpsOnBoard[PowerUpsOnBoard.length] = pu;
@@ -706,6 +704,8 @@ Model.SetPowerUpActivateCallback(powerUpActivateCallback);
 
 			b.fromRowDirection = 0;
 			b.fromColDirection = 0;
+
+			b.powerUp = null;
 
 			if(b.row >= defaultBoardRows || b.col >= defaultBoardCols || b.row < 0 || b.col < 0)
 				throw new Error("Cannot start bike outside of board.");
