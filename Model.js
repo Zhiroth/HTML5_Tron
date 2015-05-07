@@ -168,7 +168,7 @@ Model.SetPowerUpActivateCallback(powerUpActivateCallback);
 		start: function()
 		{
 			this.originalSpeed = this.bike.speed;
-			this.bike.speed = threashhold;
+			this.bike.speed = Math.round(1.50 * defaultSpeed);
 		},
 
 		update: function()
