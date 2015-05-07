@@ -59,6 +59,12 @@ var newModel = function(){
 	    return newObj;
 	}
 
+	// Returns a random number between the min and max inclusive
+	function rndInt(min,max)
+	{
+	    return Math.floor(Math.random()*(max-min+1)+min);
+	}
+
 	// - - - - - - - - Power Ups! - - - - - - - - 
 
 	// All properties that are common among power ups and not a Board Object.
@@ -66,19 +72,20 @@ var newModel = function(){
 	{
 		type: "Power Up", // Overrides the GameObject type
 		active: false,
-		duration: 250, // Default 5 second duration if 50 fps
+		duration: 50, // Default 3 second duration if 50 fps
 		ticksLeft: 0,
+		bike: null,
 		start: function(){},
-		tick: function(){},
+		update: function(){},
 		end: function(){}
 	}
 
 
 	pub.PowerUpTypes = {};
-	pub.UsingThesePowerUpTypes = {};
+	pub.UsingThesePowerUpTypes = [];
 
-	pub.FrequencyOfPowerUpsOffset = 250; //How long to wait before spawning first powerup. (Default 5 sec at 50 fps).
-	pub.FrequencyOfPowerUps = 1000; // How many ticks between power up spawns. (Every 20 seconds if game running at 50 fps)
+	pub.FrequencyOfPowerUpsOffset = 50; //How long to wait before spawning first powerup. (Default 1 sec at 50 fps).
+	pub.FrequencyOfPowerUps = 250; // How many ticks between power up spawns. (Every 5 seconds if game running at 50 fps)
 
 	// The counter tracking when to spawn in new power ups
 	var powerUpTick = pub.FrequencyOfPowerUps - pub.FrequencyOfPowerUpsOffset;
@@ -102,10 +109,10 @@ var newModel = function(){
 	}
 
 	// Called when a power up is picked up
-	var powerUpPickUpCallback = function(bike){};
+	var powerUpActivateCallback = function(bike){};
 	pub.SetPowerUpActivateCallback = function(func)
 	{
-		powerUpPickUpCallback = func;
+		powerUpActivateCallback = func;
 	}
 
 /*
@@ -137,12 +144,12 @@ Model.SetPowerUpActivateCallback(powerUpActivateCallback);
 	{
 		// Loop through all the power up types and add them to the game
 		for(var i in pub.PowerUpTypes)
-			pub.UsingThesePowerUpTypes[pub.PowerUpTypes[i]];
+			pub.UsingThesePowerUpTypes[pub.UsingThesePowerUpTypes.length] = pub.PowerUpTypes[i];
 	}
 
 	pub.RemoveAllPowerUpTypes = function()
 	{
-		pub.UsingThesePowerUpTypes = {};
+		pub.UsingThesePowerUpTypes = [];
 	}
 
 	pub.SetAllPowerUpDurations = function(ticks)
@@ -155,38 +162,140 @@ Model.SetPowerUpActivateCallback(powerUpActivateCallback);
 	pub.PowerUpTypes.SelfSpeedUp =
 	{
 		name: "Speed Up",
-		color: 0xFF0000
+		color: 0xFF0000,
+		duration: 50,
+		originalSpeed: 0,
+		start: function()
+		{
+			this.originalSpeed = this.bike.speed;
+			this.bike.speed = 2*this.bike.speed;
+		},
+
+		update: function()
+		{
+
+		},
+
+		end: function()
+		{
+			this.bike.speed = this.originalSpeed;
+		}
 	}
+
 
 
 	pub.NewPowerUp = function(PU_TYPE)
 	{
-		var pub = {};
+		var puPub = {};
 		// Get a copy of all properties from BoardObject and PowerUp
-		shallowCopy(BoardObject, pub);
-		shallowCopy(PowerUp, pub);
+		shallowCopy(BoardObject, puPub);
+		shallowCopy(PowerUp, puPub);
+		shallowCopy(PU_TYPE, puPub);
 
-		pub.puType = PU_TYPE;
-		pub.name = PU_TYPE.name;
-		pub.color = PU_TYPE.color;
+		puPub.puType = PU_TYPE;
 
-		// Return the public methods and variables you can use
-		return pub;
+		puPub.activate = function()
+		{
+			puPub.active = true;
+			puPub.ticksLeft = puPub.duration;
+			// Add this to the active power ups list
+			pub.ActivePowerUps[pub.ActivePowerUps.length] = puPub;
+
+			// Allow the setup
+			puPub.start();
+
+			// Notify the controller that this power activated
+			powerUpActivateCallback(puPub);
+		}
+
+		// Return the puPublic methods and variables you can use
+		return puPub;
 	}
 
 	// Automatically creates a new power up, adds it to the game, and returns a reference to it.
 	pub.AddNewPowerUp = function(PU_Type)
 	{
-		// Create new powerup
-		var pu = pub.NewPowerUp(PU_TYPE);
+		// if a power up is specified, use that, otherwise get a random one
+		if(PU_Type==null)
+		{
+			// Get number of power up types
+			var i = pub.UsingThesePowerUpTypes.length;
+			var index = rndInt(0, i-1);
+			PU_Type = pub.UsingThesePowerUpTypes[index];
+		}
+
+		// Create the new powerup
+		var pu = pub.NewPowerUp(PU_Type);
+
+
+
+		//todo add power ups to the board rather than the players directly
 		// Add to the game
-		PowerUpsOnBoard[PowerUpsOnBoard.length] = pu;
+		//PowerUpsOnBoard[PowerUpsOnBoard.length] = pu;
+
+		//: Automatically add the power up to each player
+		for(var i in liveBikes)
+		{
+			var b = liveBikes[i];
+			if(b.powerUp == null)
+			{
+				alert("Powerup!");
+				// Give b a random powr up
+				b.powerUp = pu;
+				pu.bike = b;
+				// report the pickup
+				powerUpPickUpCallback(b);
+			}
+		}
+
 		// Return a reference to it
 		return pu;
 	}
 
 	// By default, have all the power up types in the game
 	pub.AddAllPowerUpTypes();
+
+
+
+	var UpdatePowerUps = function()
+	{
+		var ActivePowerUps = pub.ActivePowerUps;
+		// Update each of the active power ups
+		for(var i in ActivePowerUps)
+			ActivePowerUps[i].update();
+
+		// Clear out any expired power ups
+		for(var i = 0; i < ActivePowerUps.length; i++)
+		{
+			var left = ActivePowerUps[i].ticksLeft --;
+			if(left<=1)
+			{
+				// Let the power up clean up
+				ActivePowerUps[i].end();
+
+				// Deactivate power up
+				ActivePowerUps[i].active = false;
+
+				// Remove from player
+				ActivePowerUps[i].bike.powerUp = null;
+
+				// Remove it from the array
+				ActivePowerUps.splice(i,1);
+				i--; // counter the i++ so we stay in the same spot
+			}
+		}
+
+		// Update tick
+		powerUpTick++;
+		if(powerUpTick >= pub.FrequencyOfPowerUps)
+		{
+			// Reset the counter
+			powerUpTick = 0;
+
+			// Add new power up to the game
+			pub.AddNewPowerUp(null);
+		}
+	}
 		
 	//- - - - - - - - - - - - Game Settings - - - - - - - - - - - - 
 
@@ -473,7 +582,10 @@ Model.SetPowerUpActivateCallback(powerUpActivateCallback);
 		/// Tells the model that the given Player wants to activate their ability
 		this.Activate = function()
 		{
-			this.speed = this.speed += 10;
+			if(this.powerUp != null)
+				this.powerUp.activate();
+
+			//this.speed = this.speed += 10;
 			//this.drawWall = false;
 		}
 
@@ -549,6 +661,13 @@ Model.SetPowerUpActivateCallback(powerUpActivateCallback);
 	{
 		// Grab a new grid
 		resetGrid();	
+
+		// Reset power up stuff
+		pub.ActivePowerUps = [];
+
+		//bookmark
+		powerUpTick = pub.FrequencyOfPowerUps - pub.FrequencyOfPowerUpsOffset;
+
 		for(var i=0; i<bikes.length;i++)
 		{
 			var b = bikes[i];
@@ -598,8 +717,8 @@ Model.SetPowerUpActivateCallback(powerUpActivateCallback);
 	/// Tells the model to do one round of updates
 	pub.UpdateObjects = function()
 	{
-		// Clear collisions
-
+		// Check for powerups
+		UpdatePowerUps();
 
 		// Update all Game objects
 		for(var i in liveBikes)
