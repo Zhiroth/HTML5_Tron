@@ -66,6 +66,7 @@ var newModel = function(){
 	{
 		type: "Power Up", // Overrides the GameObject type
 		active: false,
+		duration: 250, // 5 seconds if 50 fps
 		ticksLeft: 0,
 		start: function(){},
 		tick: function(){},
@@ -76,14 +77,57 @@ var newModel = function(){
 	pub.PowerUpTypes = {};
 	pub.UsingThesePowerUpTypes = {};
 
-	//pub.FrequencyOfPowerUps = 
+	pub.FrequencyOfPowerUpsOffset = //How long to wait before spawning first powerup
+	pub.FrequencyOfPowerUps = // How many ticksEvery 20 seconds if game running at 50 fps
 
 	pub.PowerUpsOnBoard = [];
 	pub.ActivePowerUps = []; // Array
 
 
+	// Called when a power up appears on the board
+	var powerUpSpawnCallback = function(powerUp){};
+	pub.SetPowerUpSpawnCallback = function(func)
+	{
+		powerUpSpawnCallback = func;
+	}
 
+	// Called when a power up is picked up by the given player
+	var powerUpPickUpCallback = function(bike){};
+	pub.SetPowerUpPickUpCallback = function(func)
+	{
+		powerUpPickUpCallback = func;
+	}
 
+	// Called when a power up is picked up
+	var powerUpPickUpCallback = function(bike){};
+	pub.SetPowerUpActivateCallback = function(func)
+	{
+		powerUpPickUpCallback = func;
+	}
+
+/*
+// Called when a power up appears on the board
+function powerUpSpawnCallback(poweruP)
+{
+
+}
+Model.SetPowerUpSpawnCallback(powerUpSpawnCallback);
+
+// Called when a power up is picked up by the given player
+function powerUpPickUpCallback(bike)
+{
+
+}
+Model.SetPowerUpPickUpCallback(powerUpPickUpCallback);
+
+// Called when a power up is picked up
+function powerUpActivateCallback(bike)
+{
+
+}
+Model.SetPowerUpActivateCallback(powerUpActivateCallback);
+
+//*/
 
 	// Adds all the power ups types to the game
 	pub.AddAllPowerUpTypes = function()
@@ -100,7 +144,8 @@ var newModel = function(){
 
 	pub.SetAllPowerUpDurations = function(ticks)
 	{
-
+		for(var i in pub.PowerUpTypes)
+			pub.PowerUpTypes[i].duration = ticks;
 	}
 
 	// Holds properties of a the type of powerup 
@@ -661,7 +706,7 @@ var newModel = function(){
 	}
 
 	var collisions = [];
-	var ReportCollision = function(bike, row, col)
+	var ReportCollision = function(row, col, bike)
 	{
 		CollisionCallback(row, col, bike);
 		collisions[collisions.length] = [row, col]; // CLEANUP: Not needed with the callback, but leave it for now
