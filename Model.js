@@ -115,29 +115,6 @@ var newModel = function(){
 		powerUpActivateCallback = func;
 	}
 
-/*
-// Called when a power up appears on the board
-function powerUpSpawnCallback(powerUp)
-{
-
-}
-Model.SetPowerUpSpawnCallback(powerUpSpawnCallback);
-
-// Called when a power up is picked up by the given player
-function powerUpPickUpCallback(bike)
-{
-
-}
-Model.SetPowerUpPickUpCallback(powerUpPickUpCallback);
-
-// Called when a power up is picked up
-function powerUpActivateCallback(bike)
-{
-
-}
-Model.SetPowerUpActivateCallback(powerUpActivateCallback);
-
-//*/
 
 	// Adds all the power ups types to the game
 	pub.AddAllPowerUpTypes = function()
@@ -718,7 +695,7 @@ Model.SetPowerUpActivateCallback(powerUpActivateCallback);
 	pub.UpdateObjects = function()
 	{
 		// Check for powerups
-		UpdatePowerUps();
+		//UpdatePowerUps();
 
 		// Update all Game objects
 		for(var i in liveBikes)
