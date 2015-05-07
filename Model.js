@@ -168,7 +168,7 @@ Model.SetPowerUpActivateCallback(powerUpActivateCallback);
 		start: function()
 		{
 			this.originalSpeed = this.bike.speed;
-			this.bike.speed = 2*this.bike.speed;
+			this.bike.speed = threashhold;
 		},
 
 		update: function()
@@ -239,7 +239,7 @@ Model.SetPowerUpActivateCallback(powerUpActivateCallback);
 			{
 				// Create the new powerup
 				var pu = pub.NewPowerUp(PU_Type);
-				
+
 				// Give b a random powr up
 				b.powerUp = pu;
 				pu.bike = b;
