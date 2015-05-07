@@ -81,10 +81,16 @@ var newModel = function(){
 	pub.PowerUpsOnBoard = [];
 	pub.ActivePowerUps = []; // Array
 
+
+
+
+
 	// Adds all the power ups types to the game
 	pub.AddAllPowerUpTypes = function()
 	{
-
+		// Loop through all the power up types and add them to the game
+		for(var i in pub.PowerUpTypes)
+			pub.UsingThesePowerUpTypes[pub.PowerUpTypes[i]];
 	}
 
 	pub.RemoveAllPowerUpTypes = function()
@@ -100,7 +106,8 @@ var newModel = function(){
 	// Holds properties of a the type of powerup 
 	pub.PowerUpTypes.SelfSpeedUp =
 	{
-		name: "Speed Up"
+		name: "Speed Up",
+		color: 0xFF0000
 	}
 
 
@@ -111,7 +118,9 @@ var newModel = function(){
 		shallowCopy(BoardObject, pub);
 		shallowCopy(PowerUp, pub);
 
-		pub.type = PU_TYPE;
+		pub.puType = PU_TYPE;
+		pub.name = PU_TYPE.name;
+		pub.color = PU_TYPE.color;
 
 		// Return the public methods and variables you can use
 		return pub;
@@ -539,6 +548,9 @@ var newModel = function(){
 	/// Tells the model to do one round of updates
 	pub.UpdateObjects = function()
 	{
+		// Clear collisions
+
+
 		// Update all Game objects
 		for(var i in liveBikes)
 		{
@@ -642,10 +654,17 @@ var newModel = function(){
 		}
 	}
 
+	var CollisionCallback;
+	pub.SetCollisionCallback(func)
+	{
+		CollisionCallback = func;
+	}
+
 	var collisions = [];
 	var ReportCollision = function(row, col)
 	{
-		collisions[collisions.length] = [row, col];
+		CollisionCallback(row,col);
+		collisions[collisions.length] = [row, col]; // CLEANUP: Not needed with the callback, but leave it for now
 	}
 
 	/// Grabs a list of collisions that happened on the last UpdateObjects
