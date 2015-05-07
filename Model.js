@@ -199,7 +199,12 @@ var newModel = function(){
 
 	var wrap = function(gameObj)
 	{
-		
+		var prevR = gameObj.row;
+		var prevC = gameObj.col;
+		gameObj.row = (gameObj.row + defaultBoardRows) % defaultBoardRows;
+		gameObj.col = (gameObj.col + defaultBoardCols) % defaultBoardCols;
+		if((gameObj.row != prevR || gameObj.col!=prevC) && gameObj.type=="Bike")
+			gameObj.drawWall = false;
 		return true;
 	}
 	var noWrap = function(gameObj)
@@ -410,6 +415,9 @@ var newModel = function(){
 
 		this.update = function()
 		{
+			// Set the default at beginning
+			this.drawWall = true;
+
 			// If the bike has no direction then don't move it
 			if(this.rowDirection != 0 || this.colDirection != 0 )
 				this.progress += this.speed; // Update the bike's progress
